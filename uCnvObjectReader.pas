@@ -208,7 +208,7 @@ begin
                         then SetOrdProp (Result, p, integer (false))
                         else AssignValue (APropName, false, Result)
                       else Error (STR_OnlySymbolValueAllowedIs);
-                toString  :
+                Classes.toString :
                   begin
                     if p <> nil
                       then SetStrProp (Result, p, FParser.TokenString)
