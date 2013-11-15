@@ -416,7 +416,7 @@ type
     ['{5D7E120B-D40C-412B-9B0F-AA82788E57DE}']
     function at(pos : Integer): DObject;
     function atAsBoolean(pos : Integer): Boolean;
-    function atAsChar(pos : Integer): Char;
+    function atAsChar(pos : Integer): AnsiChar;
     function atAsClass(pos : Integer): TClass;
     function atAsCurrency(pos : Integer): Currency;
     function atAsExtended(pos : Integer): Extended;
@@ -424,7 +424,7 @@ type
     function atAsInteger(pos : Integer): Integer;
     function atAsInterface(pos : Integer): Pointer;
     function atAsObject(pos : Integer): TObject;
-    function atAsPChar(pos : Integer): PChar;
+    function atAsPChar(pos : Integer): PAnsiChar;
     function atAsPointer(pos : Integer): Pointer;
     function atAsPWideChar(pos : Integer): PWideChar;
     function atAsShortString(pos : Integer): ShortString;
@@ -1089,7 +1089,7 @@ type
     {** Retrieves at an index as a Boolean. Asserts if the type is not correct. }
     function atAsBoolean(pos : Integer) : Boolean;
 		{** Retrieves at an index as a Char. Asserts if the type is not correct. }
-    function atAsChar(pos : Integer) : Char;
+    function atAsChar(pos : Integer): AnsiChar;
     {** Retrieves at an index as an extended floating point value. Asserts if the type is not correct. }
     function atAsExtended(pos : Integer) : Extended;
     {** Retrieves at an index as a short string.Asserts if the type is not correct. }
@@ -1097,7 +1097,7 @@ type
     {** Retrieves at an index as an untyped pointer.Asserts if the type is not correct. }
 		function atAsPointer(pos : Integer) : Pointer;
     {** Retrieves at an index as a PChar. Asserts if the type is not correct. }
-    function atAsPChar(pos : Integer) : PChar;
+    function atAsPChar(pos : Integer): PAnsiChar;
     {** Retrieves at an index as an object reference.  Asserts if the type is not correct. }
     function atAsObject(pos : Integer) : TObject;
     {** Retrieves at an index as a class reference (TClass). Asserts if the type is not correct. }
@@ -2240,7 +2240,7 @@ type
 
   {** Retrieve the object at the iterator as a character.
   @param iterator The iterator to get from. }
-  function getChar(const iterator : DIterator) : Char;
+  function getChar(const iterator : DIterator): AnsiChar;
 
   {** Retrieve the object at the iterator as an extended floating point value.
   @param iterator The iterator to get from. }
@@ -2256,7 +2256,7 @@ type
 
   {** Retrieve the object at the iterator as a PChar.
   @param iterator The iterator to get from. }
-  function getPChar(const iterator : DIterator) : PChar;
+  function getPChar(const iterator : DIterator): PAnsiChar;
 
   {** Retrieve the object at the iterator as an object reference.
   It's a good idea to do a typecast with this using the AS operator.
@@ -2307,7 +2307,7 @@ type
 	{** Converts the DObject to a Boolean. Asserts if the type is not correct. }
   function asBoolean(const obj : DObject) : Boolean;
   {** Converts the DObject to a Char. Asserts if the type is not correct. }
-  function asChar(const obj : DObject) : Char;
+  function asChar(const obj : DObject): AnsiChar;
   {** Converts the DObject to an extended floating point value. Asserts if the type is not correct. }
   function asExtended(const obj : DObject) : Extended;
   {** Converts the DObject to a short string.Asserts if the type is not correct. }
@@ -2315,7 +2315,7 @@ type
   {** Converts the DObject to an untyped pointer.Asserts if the type is not correct. }
   function asPointer(const obj : DObject) : Pointer;
   {** Converts the DObject to a PChar. Asserts if the type is not correct. }
-  function asPChar(const obj : DObject) : PChar;
+  function asPChar(const obj : DObject): PAnsiChar;
   {** Converts the DObject to an object reference.  Asserts if the type is not correct. }
   function asObject(const obj : DObject) : TObject;
   {** Converts the DObject to a class reference (TClass). Asserts if the type is not correct. }
@@ -2347,7 +2347,7 @@ type
   {** Retrieves at an index as a Boolean. Asserts if the type is not correct.  Clears the source DObject. }
   function toBoolean(const obj : DObject) : Boolean;
   {** Retrieves at an index as a Char. Asserts if the type is not correct.  Clears the source DObject. }
-  function toChar(const obj : DObject) : Char;
+  function toChar(const obj : DObject): AnsiChar;
   {** Retrieves at an index as an extended floating point value. Asserts if the type is not correct.  Clears the source DObject. }
   function toExtended(const obj : DObject) : Extended;
   {** Retrieves at an index as a short string.Asserts if the type is not correct.  Clears the source DObject. }
@@ -2355,7 +2355,7 @@ type
   {** Retrieves at an index as an untyped pointer.Asserts if the type is not correct.  Clears the source DObject. }
   function toPointer(const obj : DObject) : Pointer;
   {** Retrieves at an index as a PChar. Asserts if the type is not correct.  Clears the source DObject. }
-  function toPChar(const obj : DObject) : PChar;
+  function toPChar(const obj : DObject): PAnsiChar;
   {** Retrieves at an index as an object reference.  Asserts if the type is not correct.  Clears the source DObject. }
   function toObject(const obj : DObject) : TObject;
   {** Retrieves at an index as a class reference (TClass). Asserts if the type is not correct.  Clears the source DObject. }
@@ -4693,7 +4693,7 @@ end;
 
 {** Retrieve the character at the current iterator position.  Verifies the type
 if assertions are active. }
-function getChar(const iterator : DIterator) : Char;
+function getChar(const iterator : DIterator): AnsiChar;
 begin
 	assert(IIterHandler (iterator.Handler).iget(iterator).VType = vtChar);
 	result := IIterHandler (iterator.Handler).iget(iterator).VChar;
@@ -4725,7 +4725,7 @@ end;
 
 {** Retrieve the PChar at the current iterator position.  Verifies the type
 if assertions are active. }
-function getPChar(const iterator : DIterator) : PChar;
+function getPChar(const iterator : DIterator): PAnsiChar;
 begin
 	assert(IIterHandler (iterator.Handler).iget(iterator).VType = vtPChar);
 	result := IIterHandler (iterator.Handler).iget(iterator).VPChar;
@@ -4824,7 +4824,7 @@ begin
   result := obj.VBoolean;
 end;
 
-function asChar(const obj : DObject) : Char;
+function asChar(const obj : DObject): AnsiChar;
 begin
 	assert(obj.VType = vtChar);
   result := obj.VChar;
@@ -4848,7 +4848,7 @@ begin
   result := obj.VPointer;
 end;
 
-function asPChar(const obj : DObject) : PChar;
+function asPChar(const obj : DObject): PAnsiChar;
 begin
 	assert(obj.VType = vtPChar);
   result := obj.VPChar;
@@ -4931,7 +4931,7 @@ begin
   ClearDObject(PDObject(@obj)^);
 end;
 
-function toChar(const obj : DObject) : Char;
+function toChar(const obj : DObject): AnsiChar;
 begin
 	assert(obj.VType = vtChar);
   result := obj.VChar;
@@ -4959,7 +4959,7 @@ begin
   ClearDObject(PDObject(@obj)^);
 end;
 
-function toPChar(const obj : DObject) : PChar;
+function toPChar(const obj : DObject): PAnsiChar;
 begin
 	assert(obj.VType = vtPChar);
   result := obj.VPChar;
@@ -5675,7 +5675,7 @@ function DRedBlackTree.insertIn(_start, _finish : DIterator) : Boolean;
 var pair : Dpair;
 begin
 	result := true;
-	while not equals(_start, finish) do
+	while not decal.equals(_start, finish) do
 		begin
 			pair.first := getRef(_start)^;
 			pair.second := getRef(_start)^;
@@ -5752,11 +5752,11 @@ function DRedBlackTree.eraseIn(_start, _finish : DIterator) : Integer;
 var iter : DIterator;
 begin
 	result := 0;
-	if equals(_start, start) and equals(_finish, finish) then
+	if decal.equals(_start, start) and decal.equals(_finish, finish) then
 		erase(false)
 	else
 		begin
-			while not equals(_start, _finish) do
+			while not decal.equals(_start, _finish) do
 				begin
         	iter := advanceF(_start);
 					eraseAt(_start);
@@ -6368,7 +6368,7 @@ var i : DIterator;
 begin
 	result := 0;
 	i := iter1;
-	while not equals(i, iter2) do
+	while not decal.equals(i, iter2) do
 		begin
 			Inc(result);
 			advance(i);
@@ -6857,7 +6857,7 @@ begin
 end;
 
 {** Retrieves at an index as a Char. Asserts if the type is not correct. }
-function DSequence.atAsChar(pos : Integer) : Char;
+function DSequence.atAsChar(pos : Integer): AnsiChar;
 begin
 	result := asChar(_at(pos)^);
 end;
@@ -6881,7 +6881,7 @@ begin
 end;
 
 {** Retrieves at an index as a PChar. Asserts if the type is not correct. }
-function DSequence.atAsPChar(pos : Integer) : PChar;
+function DSequence.atAsPChar(pos : Integer): PAnsiChar;
 begin
 	result := asPChar(_at(pos)^);
 end;
@@ -7760,7 +7760,7 @@ begin
 	if count > 0 then
 		begin
 			makeSpaceAt(index, count);
-			while not equals(_start, _finish) do
+			while not decal.equals(_start, _finish) do
 				begin
         	CopyDObject(getRef(_start)^, items^[index]);
           Inc(index);
@@ -8189,7 +8189,7 @@ begin
 	iter := start;
   MorphIterator(iter);
 	result := 0;
-	while not equals(iter, finish) do
+	while not decal.equals(iter, finish) do
 		begin
 			if comparator(getRef(iter)^, value) = 0 then
 				Inc(result);
@@ -8397,7 +8397,7 @@ function DSet._includes(const obj : DObject) : Boolean;
 var iter : DIterator;
 begin
 	iter := tree.find(obj);
-	result := not equals(iter, finish);
+	result := not decal.equals(iter, finish);
 end;
 
 function DSet.includes(obj : array of const) : Boolean;
@@ -9489,7 +9489,7 @@ procedure DTStrings.insertRangeAtIter(iterator : DIterator; _start, _finish : DI
 var index : Integer;
 begin
 	index := iterator.position;
-  while not equals(start, finish) do
+  while not decal.equals(start, finish) do
   	begin
     	Fstrings.insert(index, getString(_start));
       Inc(index);
@@ -9499,7 +9499,7 @@ end;
 
 procedure DTStrings.insertRangeAt(index : Integer; _start, _finish : DIterator);
 begin
-  while not equals(start, finish) do
+  while not decal.equals(start, finish) do
   	begin
     	Fstrings.insert(index, getString(_start));
       Inc(index);
