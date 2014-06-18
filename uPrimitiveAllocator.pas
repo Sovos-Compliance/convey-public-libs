@@ -4,6 +4,8 @@ interface
 
 {$i DelphiVersion_defines.inc}
 
+{$IFDEF DELPHI2009}uses AnsiStrings; {$ENDIF}
+
 type
   {$IFNDEF DELPHI2007}
   PInteger = ^Integer;
@@ -188,7 +190,7 @@ function TPrimitiveAllocator.New(const value: PAnsiChar): PAnsiChar;
 var
   ABytes : Cardinal;
 begin
-  ABytes := (StrLen(value) + 1) * sizeof(AnsiChar);
+  ABytes := ({$IFDEF DELPHI2009}AnsiStrings.{$ENDIF}StrLen(value) + 1) * sizeof(AnsiChar);
   Result := FHeap.Alloc(ABytes);
   system.Move(value^, Result^, ABytes);
 end;
