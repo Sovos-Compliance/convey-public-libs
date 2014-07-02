@@ -3,7 +3,7 @@ unit uStack;
 interface
 
 uses
-  Variants, SysUtils;
+  {$IFNDEF VER130}Variants, {$ENDIF} SysUtils;
 
 type
   EStack = Exception;
