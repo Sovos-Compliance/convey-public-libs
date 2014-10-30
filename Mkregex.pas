@@ -1223,11 +1223,6 @@ var
 begin
   pattern_offset := 0;
   ch := #0;
-  if IsConsole then
-  begin
-    writeln;
-    writeln(FPattern);
-  end;
   if not re_compile_initialized then
     re_compile_initialize;
   regexp_t.fastmap_accurate := false;
@@ -1273,8 +1268,6 @@ begin
           end;
         end;
       level := integer(regexp_precedences[ord(op)]);
-      if IsConsole then
-        writeln(Format('ch="%1s" op=%d level=%d current_level=%d curlevstart=%d',[ ch, ord(op), level, current_level,starts[starts_base + current_level]]));
       if (level > current_level) then
       begin
         inc(current_level); // before or after the while??
