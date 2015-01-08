@@ -31,7 +31,7 @@ Adapted to Tiburon Sebastian Zierer
     not be charged seperatly.
  4. Altered versions must be plainly marked as such, and must
     not be misrepresented as being the original software.
- 5. RegExp Studio application and all the visual components as 
+ 5. RegExp Studio application and all the visual components as
     well as documentation is not part of the TRegExpr library
     and is not free for usage.
 
@@ -1312,7 +1312,13 @@ var AModifiersInt : integer) : boolean;
  begin
   Result := true;
   IsOn := true;
+  {$IFDEF DXE4}
+    {$IFNDEF WIN64}
+    Mask := 0; // prevent compiler warning
+    {$ENDIF}
+  {$ELSE}
   Mask := 0; // prevent compiler warning
+  {$ENDIF}
   for i := 1 to length (AModifiers) do
    if AModifiers [i] = '-'
     then IsOn := false
