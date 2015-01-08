@@ -28,7 +28,7 @@ static ResetMemAllocator_t ResetMemAllocatorFn = NULL;
 #define DONE_DLL_FUNCTION(FNNAME) FNNAME##Fn = NULL 
 
 void InitCnvRegEx() {
-  RegExLib = LoadLibraryA("cnvregex.dll");
+  RegExLib = LoadLibraryA(CNVREGEX_DLL);
 
   INIT_DLL_FUNCTION(RegExpr_Create);
   INIT_DLL_FUNCTION(RegExpr_Free);

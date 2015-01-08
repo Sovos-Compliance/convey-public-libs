@@ -3,6 +3,8 @@
 
 #include <Windows.h>
 
+#define CNVREGEX_DLL "cnvregex.dll"
+
 void InitCnvRegEx();
 void DoneCnvRegEx();
 
