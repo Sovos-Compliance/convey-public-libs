@@ -63,6 +63,10 @@ interface
 {$IFDEF VER240} {$DEFINE DXE3} {$DEFINE DXE2} {$DEFINE DXE} {$DEFINE D2010} {$DEFINE D2009} {$DEFINE D2007} {$DEFINE D2006} {$DEFINE D2005} {$DEFINE D8} {$DEFINE D7} {$DEFINE D6} {$DEFINE D5} {$DEFINE D4} {$DEFINE D3} {$DEFINE D2} {$ENDIF} // DXE3
 {$IFDEF VER250} {$DEFINE DXE4} {$DEFINE DXE3} {$DEFINE DXE2} {$DEFINE DXE} {$DEFINE D2010} {$DEFINE D2009} {$DEFINE D2007} {$DEFINE D2006} {$DEFINE D2005} {$DEFINE D8} {$DEFINE D7} {$DEFINE D6} {$DEFINE D5} {$DEFINE D4} {$DEFINE D3} {$DEFINE D2} {$ENDIF} // DXE4
 
+{$IFDEF DISABLE_UNICODE}
+  {$UNDEF UNICODE}
+{$ENDIF}
+
 // ======== Define base compiler options
 {$BOOLEVAL OFF}
 {$EXTENDEDSYNTAX ON}
@@ -81,7 +85,6 @@ interface
 {$ENDIF}
 
 // ======== Define options for TRegExpr engine
-{.$DEFINE UniCode} // Unicode support
 {$DEFINE RegExpPCodeDump} // p-code dumping (see Dump method)
 {$IFNDEF FPC} // the option is not supported in FreePascal
  {$DEFINE reRealExceptionAddr} // exceptions will point to appropriate source line, not to Error procedure
@@ -95,7 +98,9 @@ interface
 {$ENDIF}
 
 {$IFDEF D2009}
-  {$DEFINE UNICODE}
+  {$IFNDEF DISABLE_UNICODE}
+    {$DEFINE UNICODE}
+  {$ENDIF}
 {$ENDIF}
 
 // ======== Define Pascal-language options
@@ -122,9 +127,9 @@ type
  RegExprString = UnicodeString;
  REChar = WideChar;
  {$ELSE}
- PRegExprChar = PChar;
+ PRegExprChar = PAnsiChar;
  RegExprString = AnsiString; //###0.952 was string
- REChar = Char;
+ REChar = AnsiChar;
  {$ENDIF}
  TREOp = REChar; // internal p-code type //###0.933
  PREOp = ^TREOp;
@@ -199,7 +204,7 @@ type
 
  TRegExpr = class;
 
- TRegExprReplaceFunction = function (ARegExpr : TRegExpr): string
+ TRegExprReplaceFunction = function (ARegExpr : TRegExpr): RegExprString
                                of object;
 
  TRegExpr = class
@@ -279,6 +284,7 @@ type
     fLinePairedSeparatorAssigned : boolean;
     fLinePairedSeparatorHead,
     fLinePairedSeparatorTail : REChar;
+    FOwnsExpression: Boolean;
     {$IFNDEF UniCode}
     fLineSeparatorsSet : set of REChar;
     {$ENDIF}
@@ -380,6 +386,8 @@ type
     procedure SetLineSeparators (const AStr : RegExprString);
     procedure SetLinePairedSeparator (const AStr : RegExprString);
     function GetLinePairedSeparator : RegExprString;
+    function GetRawExpression: PRegExprChar;
+    procedure SetRawExpression(const Value: PRegExprChar);
 
    public
     constructor Create;
@@ -398,6 +406,7 @@ type
     // after last [re]compilation.
     // If any errors while [re]compilation occures, Error method is called
     // (by default Error raises exception - see below)
+    property RawExpression: PRegExprChar read GetRawExpression write SetRawExpression;
 
     property ModifierStr : RegExprString read GetModifierStr write SetModifierStr;
     // Set/get default values of r.e.syntax modifiers. Modifiers in
@@ -566,6 +575,7 @@ type
     // line separators (like \n in Unix)
 
     property LinePairedSeparator : RegExprString read GetLinePairedSeparator write SetLinePairedSeparator; //###0.941
+
     // paired line separator (like \r\n in DOS and Windows).
     // must contain exactly two chars or no chars at all
 
@@ -623,8 +633,9 @@ function QuoteRegExprMetaChars (const AStr : RegExprString) : RegExprString;
 // This function usefull for r.e. autogeneration from
 // user input
 
-function RegExprSubExpressions (const ARegExpr : string;
- ASubExprs : TStrings; AExtendedSyntax : boolean{$IFDEF DefParam}= False{$ENDIF}) : integer;
+function RegExprSubExpressions(const ARegExpr: RegExprString; ASubExprs:
+    TStrings; AExtendedSyntax: boolean{$IFDEF DefParam} = False{$ENDIF}):
+    integer;
 // Makes list of subexpressions found in ARegExpr r.e.
 // In ASubExps every item represent subexpression,
 // from first to last, in format:
@@ -650,7 +661,7 @@ function RegExprSubExpressions (const ARegExpr : string;
 implementation
 
 uses
- Windows; // CharUpper/Lower
+ Windows {$IFDEF D2009}{$IFNDEF UNICODE}, AnsiStrings {$ENDIF}{$ENDIF}; // CharUpper/Lower
 
 const
  TRegExprVersionMajor : integer = 0;
@@ -808,8 +819,9 @@ function QuoteRegExprMetaChars (const AStr : RegExprString) : RegExprString;
  end; { of function QuoteRegExprMetaChars
 --------------------------------------------------------------}
 
-function RegExprSubExpressions (const ARegExpr : string;
- ASubExprs : TStrings; AExtendedSyntax : boolean{$IFDEF DefParam}= False{$ENDIF}) : integer;
+function RegExprSubExpressions(const ARegExpr: RegExprString; ASubExprs:
+    TStrings; AExtendedSyntax: boolean{$IFDEF DefParam} = False{$ENDIF}):
+    integer;
  type
   TStackItemRec =  record //###0.945
     SubExprIdx : integer;
@@ -1174,7 +1186,7 @@ destructor TRegExpr.Destroy;
  begin
   if programm <> nil
    then FreeMem (programm);
-  if fExpression <> nil
+  if FOwnsExpression and (fExpression <> nil)
    then FreeMem (fExpression);
   if fInputString <> nil
    then FreeMem (fInputString);
@@ -1213,24 +1225,39 @@ procedure TRegExpr.SetExpression (const s : RegExprString);
   if (s <> fExpression) or not fExprIsCompiled then begin
     fExprIsCompiled := false;
     if fExpression <> nil then begin
-      FreeMem (fExpression);
+      if FOwnsExpression then
+        FreeMem (fExpression);
       fExpression := nil;
      end;
     if s <> '' then begin
       Len := length (s); //###0.950
       GetMem (fExpression, (Len + 1) * SizeOf (REChar));
-//      StrPCopy (fExpression, s); //###0.950 replaced due to StrPCopy limitation of 255 chars
+      FOwnsExpression := True;
       {$IFDEF UniCode}
-      StrPCopy (fExpression, Copy (s, 1, Len)); //###0.950
+      StrPCopy (fExpression,  s); //###0.950
       {$ELSE}
-      StrLCopy (fExpression, PRegExprChar (s), Len); //###0.950
+      {$IFDEF D2009}{$IFNDEF UNICODE}AnsiStrings.{$ENDIF}{$ENDIF}StrLCopy (fExpression, PRegExprChar (s), Len); //###0.950
       {$ENDIF UniCode}
 
       InvalidateProgramm; //###0.941
      end;
    end;
  end; { of procedure TRegExpr.SetExpression
+
 --------------------------------------------------------------}
+
+function TRegExpr.GetRawExpression: PRegExprChar;
+begin
+  Result := fExpression;
+end;
+
+procedure TRegExpr.SetRawExpression(const Value: PRegExprChar);
+begin
+  fExpression := Value;
+  FOwnsExpression := False;
+  fExprIsCompiled := False;
+  InvalidateProgramm;
+end;
 
 function TRegExpr.GetSubExprMatchCount : integer;
  begin
@@ -1695,9 +1722,9 @@ function TRegExpr.CompileRegExpr (exp : PRegExprChar) : boolean;
         len := 0;
         while scan <> nil do begin
           if (PREOp (scan)^ = EXACTLY)
-             and (strlen (scan + REOpSz + RENextOffSz) >= len) then begin
+             and ({$IFDEF D2009}{$IFNDEF UNICODE}AnsiStrings.{$ENDIF}{$ENDIF}strlen (scan + REOpSz + RENextOffSz) >= len) then begin
               longest := scan + REOpSz + RENextOffSz;
-              len := strlen (longest);
+              len := {$IFDEF D2009}{$IFNDEF UNICODE}AnsiStrings.{$ENDIF}{$ENDIF}strlen (longest);
            end;
           scan := regnext (scan);
          end;
@@ -2920,7 +2947,7 @@ function TRegExpr.MatchPrim (prog : PRegExprChar) : boolean;
             if (opnd^ <> reginput^)
                and (InvertCase (opnd^) <> reginput^)
              then EXIT;
-            len := strlen (opnd);
+            len := {$IFDEF D2009}{$IFNDEF UNICODE}AnsiStrings.{$ENDIF}{$ENDIF}strlen (opnd);
             //###0.929 begin
             no := len;
             save := reginput;
@@ -2940,7 +2967,7 @@ function TRegExpr.MatchPrim (prog : PRegExprChar) : boolean;
             // Inline the first character, for speed.
             if opnd^ <> reginput^
              then EXIT;
-            len := strlen (opnd);
+            len := {$IFDEF D2009}{$IFNDEF UNICODE}AnsiStrings.{$ENDIF}{$ENDIF}strlen (opnd);
             //###0.929 begin
             no := len;
             save := reginput;
@@ -3473,9 +3500,9 @@ function TRegExpr.ExecPrim (AOffset: integer) : boolean;
   if regmust <> nil then begin
     s := StartPtr;
     REPEAT
-     s := StrScan (s, regmust [0]);
+     s := {$IFDEF D2009}{$IFNDEF UNICODE}AnsiStrings.{$ENDIF}{$ENDIF}StrScan (s, regmust [0]);
      if s <> nil then begin
-       if StrLComp (s, regmust, regmlen) = 0
+       if {$IFDEF D2009}{$IFNDEF UNICODE}AnsiStrings.{$ENDIF}{$ENDIF}StrLComp (s, regmust, regmlen) = 0
         then BREAK; // Found it.
        inc (s);
       end;
@@ -3506,7 +3533,7 @@ function TRegExpr.ExecPrim (AOffset: integer) : boolean;
   s := StartPtr;
   if regstart <> #0 then // We know what char it must start with.
     REPEAT
-     s := StrScan (s, regstart);
+     s := {$IFDEF D2009}{$IFNDEF UNICODE}AnsiStrings.{$ENDIF}{$ENDIF}StrScan (s, regstart);
      if s <> nil then begin
        Result := RegMatch (s);
        if Result
@@ -3604,7 +3631,7 @@ procedure TRegExpr.SetInputString (const AInputString : RegExprString);
   {$IFDEF UniCode}
   StrPCopy (fInputString, Copy (AInputString, 1, Len)); //###0.927
   {$ELSE}
-  StrLCopy (fInputString, PRegExprChar (AInputString), Len);
+  {$IFDEF D2009}{$IFNDEF UNICODE}AnsiStrings.{$ENDIF}{$ENDIF}StrLCopy (fInputString, PRegExprChar (AInputString), Len);
   {$ENDIF}
 
   {
@@ -3892,9 +3919,9 @@ function TRegExpr.DumpOp (op : TREOp) : RegExprString;
     BSUBEXP:      Result := 'BSUBEXP';
     BSUBEXPCI:    Result := 'BSUBEXP/CI';
     Succ (OPEN) .. TREOp (Ord (OPEN) + NSUBEXP - 1): //###0.929
-                  Result := Format ('OPEN[%d]', [ord (op) - ord (OPEN)]);
+                  Result := {$IFDEF D2009}{$IFNDEF UNICODE}AnsiStrings.{$ENDIF}{$ENDIF}Format ('OPEN[%d]', [ord (op) - ord (OPEN)]);
     Succ (CLOSE) .. TREOp (Ord (CLOSE) + NSUBEXP - 1): //###0.929
-                  Result := Format ('CLOSE[%d]', [ord (op) - ord (CLOSE)]);
+                  Result := {$IFDEF D2009}{$IFNDEF UNICODE}AnsiStrings.{$ENDIF}{$ENDIF}Format ('CLOSE[%d]', [ord (op) - ord (CLOSE)]);
     STAR:         Result := 'STAR';
     PLUS:         Result := 'PLUS';
     BRACES:       Result := 'BRACES';
@@ -3945,7 +3972,7 @@ function TRegExpr.Dump : RegExprString;
         if next > s //###0.948 PWideChar subtraction workaround (see comments in Tail method for details)
          then Diff := next - s
          else Diff := - (s - next);
-        Result := Result + Format (' (%d) ', [(s - programm) + Diff]);
+        Result := Result + {$IFDEF D2009}{$IFNDEF UNICODE}AnsiStrings.{$ENDIF}{$ENDIF}Format (' (%d) ', [(s - programm) + Diff]);
        end;
      inc (s, REOpSz + RENextOffSz);
      if (op = ANYOF) or (op = ANYOFCI) or (op = ANYBUT) or (op = ANYBUTCI)
@@ -3979,12 +4006,12 @@ function TRegExpr.Dump : RegExprString;
      {$ENDIF}
      if (op = BRACES) or (op = BRACESNG) then begin //###0.941
        // show min/max argument of BRACES operator
-       Result := Result + Format ('{%d,%d}', [PREBracesArg (s)^, PREBracesArg (s + REBracesArgSz)^]);
+       Result := Result + {$IFDEF D2009}{$IFNDEF UNICODE}AnsiStrings.{$ENDIF}{$ENDIF}Format ('{%d,%d}', [PREBracesArg (s)^, PREBracesArg (s + REBracesArgSz)^]);
        inc (s, REBracesArgSz * 2);
       end;
      {$IFDEF ComplexBraces}
      if (op = LOOP) or (op = LOOPNG) then begin //###0.940
-       Result := Result + Format (' -> (%d) {%d,%d}', [
+       Result := Result + {$IFDEF D2009}{$IFNDEF UNICODE}AnsiStrings.{$ENDIF}{$ENDIF}Format (' -> (%d) {%d,%d}', [
         (s - programm - (REOpSz + RENextOffSz)) + PRENextOff (s + 2 * REBracesArgSz)^,
         PREBracesArg (s)^, PREBracesArg (s + REBracesArgSz)^]);
        inc (s, 2 * REBracesArgSz + RENextOffSz);
@@ -4044,6 +4071,7 @@ procedure TRegExpr.Error (AErrorID : integer);
    At ReturnAddr; //###0.938
    {$ENDIF}
  end; { of procedure TRegExpr.Error
+
 --------------------------------------------------------------}
 
 (*
