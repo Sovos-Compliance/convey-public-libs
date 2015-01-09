@@ -20,7 +20,7 @@ The above copyright notice and this permission notice shall be included in
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-  */
+*/
 
 #include "cnvregex.h"
 #include <assert.h>
@@ -29,6 +29,8 @@ typedef char* (__cdecl *RegExpr_Create_t)(void ** _this);
 typedef char* (__cdecl *RegExpr_Free_t)(void* _this);
 typedef char* (__cdecl *RegExpr_SetInputString_t)(void* _this, char* AInputString);
 typedef char* (__cdecl *RegExpr_SetExpression_t)(void* _this, char* AExpression);
+typedef wchar_t* (__cdecl *RegExpr_SetInputStringW_t)(void* _this, wchar_t* AInputString);
+typedef wchar_t* (__cdecl *RegExpr_SetExpressionW_t)(void* _this, wchar_t* AExpression);
 typedef char* (__cdecl *RegExpr_Exec_t)(void* _this, BOOL* AMatch);
 typedef char* (__cdecl *RegExpr_ExecNext_t)(void* _this, BOOL* AMore);
 typedef void (__cdecl *OverrideMemAllocator_t)(GetMem_t pGetMem, ReallocMem_t pReallocMem, FreeMem_t pFreeMem);
@@ -40,6 +42,8 @@ static RegExpr_Create_t RegExpr_CreateFn = NULL;
 static RegExpr_Free_t RegExpr_FreeFn = NULL;
 static RegExpr_SetInputString_t RegExpr_SetInputStringFn = NULL;
 static RegExpr_SetExpression_t RegExpr_SetExpressionFn = NULL;
+static RegExpr_SetInputStringW_t RegExpr_SetInputStringWFn = NULL;
+static RegExpr_SetExpressionW_t RegExpr_SetExpressionWFn = NULL;
 static RegExpr_Exec_t RegExpr_ExecFn = NULL;
 static RegExpr_ExecNext_t RegExpr_ExecNextFn = NULL;
 static OverrideMemAllocator_t OverrideMemAllocatorFn = NULL;
@@ -57,7 +61,9 @@ void InitCnvRegEx() {
   INIT_DLL_FUNCTION(RegExpr_Create);
   INIT_DLL_FUNCTION(RegExpr_Free);
   INIT_DLL_FUNCTION(RegExpr_SetInputString);
-  INIT_DLL_FUNCTION(RegExpr_SetExpression);
+  INIT_DLL_FUNCTION(RegExpr_SetExpression);  
+  INIT_DLL_FUNCTION(RegExpr_SetInputStringW);
+  INIT_DLL_FUNCTION(RegExpr_SetExpressionW);
   INIT_DLL_FUNCTION(RegExpr_Exec);
   INIT_DLL_FUNCTION(RegExpr_ExecNext);
   INIT_DLL_FUNCTION(OverrideMemAllocator);
@@ -69,6 +75,8 @@ void DoneCnvRegEx() {
   DONE_DLL_FUNCTION(RegExpr_Free);
   DONE_DLL_FUNCTION(RegExpr_SetInputString);
   DONE_DLL_FUNCTION(RegExpr_SetExpression);
+  DONE_DLL_FUNCTION(RegExpr_SetInputStringW);
+  DONE_DLL_FUNCTION(RegExpr_SetExpressionW);
   DONE_DLL_FUNCTION(RegExpr_Exec);
   DONE_DLL_FUNCTION(RegExpr_ExecNext);
   DONE_DLL_FUNCTION(OverrideMemAllocator);
@@ -105,6 +113,16 @@ char* RegExpr_SetInputString(void* _this, char* AInputString) {
 char* RegExpr_SetExpression(void* _this, char* AExpression) {
   assert(RegExpr_SetExpressionFn);
   return RegExpr_SetExpressionFn(_this, AExpression);
+}
+
+wchar_t* RegExpr_SetInputStringW(void* _this, wchar_t* AInputString) {
+  assert(RegExpr_SetInputStringWFn);
+  return RegExpr_SetInputStringWFn(_this, AInputString);
+}
+
+wchar_t* RegExpr_SetExpressionW(void* _this, wchar_t* AExpression) {
+  assert(RegExpr_SetExpressionWFn);
+  return RegExpr_SetExpressionWFn(_this, AExpression);
 }
 
 char* RegExpr_Exec(void* _this, BOOL* AMatch) {
