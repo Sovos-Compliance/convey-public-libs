@@ -285,6 +285,7 @@ type
     fLinePairedSeparatorHead,
     fLinePairedSeparatorTail : REChar;
     FOwnsExpression: Boolean;
+    FOwnsInputString : Boolean;
     {$IFNDEF UniCode}
     fLineSeparatorsSet : set of REChar;
     {$ENDIF}
@@ -387,7 +388,9 @@ type
     procedure SetLinePairedSeparator (const AStr : RegExprString);
     function GetLinePairedSeparator : RegExprString;
     function GetRawExpression: PRegExprChar;
+    function GetRawInputString: PRegExprChar;
     procedure SetRawExpression(const Value: PRegExprChar);
+    procedure SetRawInputString(const Value: PRegExprChar);
 
    public
     constructor Create;
@@ -476,6 +479,7 @@ type
     // returns current input string (from last Exec call or last assign
     // to this property).
     // Any assignment to this property clear Match* properties !
+    property RawInputString: PRegExprChar read GetRawInputString write SetRawInputString;
 
     function Substitute (const ATemplate : RegExprString) : RegExprString;
     // Returns ATemplate with '$&' or '$0' replaced by whole r.e.
@@ -1188,7 +1192,7 @@ destructor TRegExpr.Destroy;
    then FreeMem (programm);
   if FOwnsExpression and (fExpression <> nil)
    then FreeMem (fExpression);
-  if fInputString <> nil
+  if FOwnsInputString and (fInputString <> nil)
    then FreeMem (fInputString);
  end; { of destructor TRegExpr.Destroy
 --------------------------------------------------------------}
@@ -3482,7 +3486,7 @@ function TRegExpr.ExecPrim (AOffset: integer) : boolean;
     EXIT;
    end;
 
-  InputLen := length (fInputString);
+  InputLen := {$IFDEF D2009}{$IFNDEF UNICODE}AnsiStrings.{$ENDIF}{$ENDIF}StrLen(fInputString);
 
   //Check that the start position is not negative
   if AOffset < 1 then begin
@@ -3619,35 +3623,32 @@ procedure TRegExpr.SetInputString (const AInputString : RegExprString);
 
   // need reallocation of input string buffer ?
   Len := length (AInputString);
-  if Assigned (fInputString) and (Length (fInputString) <> Len) then begin
+  if FOwnsInputString and Assigned (fInputString) then
     FreeMem (fInputString);
-    fInputString := nil;
-   end;
+  fInputString := nil;
   // buffer [re]allocation
-  if not Assigned (fInputString)
-   then GetMem (fInputString, (Len + 1) * SizeOf (REChar));
+  GetMem (fInputString, (Len + 1) * SizeOf (REChar));
+  FOwnsInputString := True;
 
   // copy input string into buffer
   {$IFDEF UniCode}
-  StrPCopy (fInputString, Copy (AInputString, 1, Len)); //###0.927
+  StrPCopy (fInputString, AInputString); //###0.927
   {$ELSE}
   {$IFDEF D2009}{$IFNDEF UNICODE}AnsiStrings.{$ENDIF}{$ENDIF}StrLCopy (fInputString, PRegExprChar (AInputString), Len);
   {$ENDIF}
-
-  {
-  fInputString : string;
-  fInputStart, fInputEnd : PRegExprChar;
-
-  SetInputString:
-  fInputString := AInputString;
-  UniqueString (fInputString);
-  fInputStart := PChar (fInputString);
-  Len := length (fInputString);
-  fInputEnd := PRegExprChar (integer (fInputStart) + Len); ??
-  !! startp/endp все равно будет опасно использовать ?
-  }
  end; { of procedure TRegExpr.SetInputString
 --------------------------------------------------------------}
+
+function TRegExpr.GetRawInputString: PRegExprChar;
+begin
+  Result := fInputString;
+end;
+
+procedure TRegExpr.SetRawInputString(const Value: PRegExprChar);
+begin
+  fInputString := Value;
+  FOwnsInputString := False;
+end;
 
 procedure TRegExpr.SetLineSeparators (const AStr : RegExprString);
  begin
@@ -3964,7 +3965,7 @@ function TRegExpr.Dump : RegExprString;
   s := programm + REOpSz;
   while op <> EEND do begin // While that wasn't END last time...
      op := s^;
-     Result := Result + Format ('%2d%s', [s - programm, DumpOp (s^)]); // Where, what.
+     Result := Result + {$IFDEF D2009}{$IFNDEF UNICODE}AnsiStrings.{$ENDIF}{$ENDIF}Format ('%2d%s', [s - programm, DumpOp (s^)]); // Where, what.
      next := regnext (s);
      if next = nil // Next ptr.
       then Result := Result + ' (0)'
@@ -3991,7 +3992,7 @@ function TRegExpr.Dump : RegExprString;
         end;
       end;
      if (op = BSUBEXP) or (op = BSUBEXPCI) then begin
-       Result := Result + ' \' + IntToStr (Ord (s^));
+       Result := Result + ' \' + {$IFDEF D2009}{$IFNDEF UNICODE}AnsiString({$ENDIF}{$ENDIF}IntToStr (Ord (s^)){$IFDEF D2009}{$IFNDEF UNICODE}){$ENDIF}{$ENDIF};
        inc (s);
       end;
      {$IFDEF UseSetOfChar} //###0.929
@@ -3999,7 +4000,7 @@ function TRegExpr.Dump : RegExprString;
        for Ch := #0 to #255 do
         if Ch in PSetOfREChar (s)^ then
          if Ch < ' '
-          then Result := Result + '#' + IntToStr (Ord (Ch)) //###0.936
+          then Result := Result + '#' + {$IFDEF D2009}{$IFNDEF UNICODE}AnsiString({$ENDIF}{$ENDIF}IntToStr (Ord (Ch)){$IFDEF D2009}{$IFNDEF UNICODE}){$ENDIF}{$ENDIF} //###0.936
           else Result := Result + Ch;
        inc (s, SizeOf (TSetOfREChar));
       end;
@@ -4034,7 +4035,7 @@ function TRegExpr.Dump : RegExprString;
    if Ch in FirstCharSet
     then begin
       if Ch < ' '
-       then Result := Result + '#' + IntToStr(Ord(Ch)) //###0.948
+       then Result := Result + '#' + {$IFDEF D2009}{$IFNDEF UNICODE}AnsiString({$ENDIF}{$ENDIF}IntToStr(Ord(Ch)){$IFDEF D2009}{$IFNDEF UNICODE}){$ENDIF}{$ENDIF} //###0.948
        else Result := Result + Ch;
     end;
   {$ENDIF}
