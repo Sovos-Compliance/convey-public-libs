@@ -20,7 +20,7 @@ The above copyright notice and this permission notice shall be included in
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-  */
+*/
 
 #ifndef cnvregex_h
 #define cnvregex_h
@@ -29,15 +29,31 @@ The above copyright notice and this permission notice shall be included in
 
 #ifdef _DEBUG
   #ifdef _WIN64
-    #define CNVREGEX_DLL "cnvregex_d64_1-0-0.dll"
+    #ifdef USE_UNICODE_DLL
+      #define CNVREGEX_DLL "cnvregex_ud64_1-0-0.dll"
+    #else
+      #define CNVREGEX_DLL "cnvregex_d64_1-0-0.dll"
+    #endif
   #else
-    #define CNVREGEX_DLL "cnvregex_d32_1-0-0.dll"
+    #ifdef USE_UNICODE_DLL
+      #define CNVREGEX_DLL "cnvregex_ud32_1-0-0.dll"
+    #else
+      #define CNVREGEX_DLL "cnvregex_d32_1-0-0.dll"
+    #endif
   #endif
 #else
   #ifdef _WIN64
-    #define CNVREGEX_DLL "cnvregex_r64_1-0-0.dll"
+    #ifdef USE_UNICODE_DLL
+      #define CNVREGEX_DLL "cnvregex_ur64_1-0-0.dll"
+    #else
+      #define CNVREGEX_DLL "cnvregex_r64_1-0-0.dll"
+    #endif
   #else
-    #define CNVREGEX_DLL "cnvregex_r32_1-0-0.dll"
+    #ifdef USE_UNICODE_DLL
+      #define CNVREGEX_DLL "cnvregex_ur32_1-0-0.dll"
+    #else
+      #define CNVREGEX_DLL "cnvregex_r32_1-0-0.dll"
+    #endif
   #endif
 #endif
 
@@ -48,6 +64,8 @@ char* RegExpr_Create(void ** _this);
 char* RegExpr_Free(void* _this);
 char* RegExpr_SetInputString(void* _this, char* AInputString);
 char* RegExpr_SetExpression(void* _this, char* AExpression);
+wchar_t* RegExpr_SetInputStringW(void* _this, wchar_t* AInputString);
+wchar_t* RegExpr_SetExpressionW(void* _this, wchar_t* AExpression);
 char* RegExpr_Exec(void* _this, BOOL* AMatch);
 char* RegExpr_ExecNext(void* _this, BOOL* AMore);
 
