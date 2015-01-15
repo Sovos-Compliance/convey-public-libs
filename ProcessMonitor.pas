@@ -27,9 +27,8 @@ uses DirMonitor;
 constructor TProcessMonitor.Create(ProRef: TComponent);
 begin
   self.Create(true);
-  self.FProRef:=ProRef;
-  FreeOnTerminate:=true;
-  self.Priority:=tpTimeCritical;
+  self.FProRef := ProRef;
+  FreeOnTerminate := true;
 end;
 
 procedure TProcessMonitor.SendEvent;
@@ -51,14 +50,14 @@ begin
   parent := TDirMonitor(self.FProRef);
   while (not quit) do
   begin
-    GetQueuedCompletionStatus( parent.FCompletionPort, numBytes, state, parent.FPOverlapped, INFINITE);
-    if (parent.FPOverlapped<>nil)	then
+    GetQueuedCompletionStatus(parent.FCompletionPort, numBytes, state, parent.FPOverlapped, INFINITE);
+    if (parent.FPOverlapped <> nil)	then
     begin
       if self.Terminated then
-        quit:=true
+        quit := true
       else
       begin
-        self.Synchronize(self.SendEvent);
+        SendEvent;
 
         parent.FBytesWrite := 0;
         ZeroMemory(@parent.FNotificationBuffer, SizeOf(parent.FNotificationBuffer));

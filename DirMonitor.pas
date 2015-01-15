@@ -123,10 +123,10 @@ constructor TDirMonitor.Create (Owner: TComponent);
 begin
   inherited;
   FPOverlapped := @FOverlapped;
-  self.FCompletionPort := 0;
-  self.FDir := 'c:\';
-  self.FFilter_flag := [nfFILE_NAME];
-  self.FActionFilter_flag := [faADDED, faREMOVED, faMODIFIED,
+  FCompletionPort := 0;
+  FDir := 'c:\';
+  FFilter_flag := [nfFILE_NAME];
+  FActionFilter_flag := [faADDED, faREMOVED, faMODIFIED,
     faRENAMED_OLD_NAME, faRENAMED_NEW_NAME];
   Mon := TProcessMonitor.Create (self);
 end;
