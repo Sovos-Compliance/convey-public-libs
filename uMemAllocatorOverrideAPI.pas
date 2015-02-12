@@ -36,18 +36,119 @@ procedure ResetMemAllocator; cdecl;
 
 implementation
 
+uses
+  Math;
+
+const
+  OVERALLOCSIZE = sizeof(Pointer) + sizeof(NativeUInt);
+
 var
   CustomAllocator : TMemoryManagerEx;
   OldAllocator : TMemoryManagerEx;
+  OverridenAllocator : TMemoryManagerEx;
   pCustomGetMem : TGetMem;
   pCustomReallocMem : TReallocMem;
   pCustomFreeMem : TFreeMem;
 
+function CustomGetMem(Size: NativeInt): Pointer; forward;
+
+{ Wrappers to call overriden memory allocator }
+
+function OverridenFreeMem(P: Pointer): Integer;
+begin
+  if Assigned(pCustomFreeMem) then  
+    Result := pCustomFreeMem(P)
+  else
+    Result := 0; // If we got here it's a mem leak of overriden allocator already reset. We can't free the memory
+end;
+
+function OverridenReallocMem(P: Pointer; Size: NativeInt): Pointer;
+begin
+  if Assigned(pCustomReallocMem) then
+    Result := pCustomReallocMem(P, Size)
+  else
+  begin
+    // If we got here means the block was originally allocated using overriden allocator, now
+    // we must allocate using OldAllocator. So we will do GetMem and move memory
+    // Import to note that the pointer here is already adjusted to REAL pointer start
+    // So to obtain size we need to increase one NativeUInt
+    Result := CustomGetMem(Size - OVERALLOCSIZE); // Size already inflated, that's why we substract OVERALLOCSIZE
+    move(Pointer(NativeUInt(P) + OVERALLOCSIZE)^, Result^, Min(PNativeUInt(NativeUInt(P) + sizeof(Pointer))^, Size - OVERALLOCSIZE));
+    dec(NativeUInt(Result), OVERALLOCSIZE); // We need to return pointer adjusted as normal allocator would do
+  end;
+end;
+
+function OverridenRegisterExpectedMemoryLeak(P: Pointer): Boolean;
+begin
+  Result := False;
+end;
+
+function OverridenUnregisterExpectedMemoryLeak(P: Pointer): Boolean;
+begin
+  Result := False;
+end;
+
+{ Wrappers to direct call to appropiate allocator }
+
+function CustomGetMem(Size: NativeInt): Pointer;
+begin
+  if Assigned(pCustomGetMem) then
+    begin
+      Result := pCustomGetMem(Size + OVERALLOCSIZE);
+      PPointer(Result)^ := @OverridenAllocator;
+    end
+  else
+    begin
+      Result := OldAllocator.GetMem(Size + OVERALLOCSIZE);
+      PPointer(Result)^ := @OldAllocator;
+    end;
+  inc(NativeUInt(Result), sizeof(Pointer));
+  PNativeUInt(Result)^ := Size;
+  inc(NativeUInt(Result), sizeof(NativeUInt));
+end;
+
+function CustomFreeMem(P: Pointer): Integer;
+begin
+  dec(NativeUInt(p), OVERALLOCSIZE);
+  Result := PMemoryManagerEx(PPointer(p)^)^.FreeMem(p);
+end;
+
+function CustomReallocMem(P: Pointer; Size: NativeInt): Pointer;
+begin
+  if p <> nil then
+    begin
+      dec(NativeUInt(p), OVERALLOCSIZE);
+      Result := PMemoryManagerEx(PPointer(p)^)^.ReallocMem(P, Size + OVERALLOCSIZE);
+      inc(NativeUInt(Result), sizeof(Pointer));
+      PNativeUInt(Result)^ := Size;
+      inc(NativeUInt(Result), sizeof(NativeUInt));
+    end
+    else Result := CustomGetMem(Size);
+end;
+
+function CustomAllocMem(Size: NativeInt): Pointer;
+begin
+  Result := CustomGetMem(Size);
+  FillChar(Result^, Size, 0);
+end;
+
+function CustomRegisterExpectedMemoryLeak(P: Pointer): Boolean;
+begin
+  dec(NativeUInt(p), OVERALLOCSIZE);
+  Result := PMemoryManagerEx(PPointer(p)^)^.RegisterExpectedMemoryLeak(p);
+end;
+
+function CustomUnregisterExpectedMemoryLeak(P: Pointer): Boolean;
+begin
+  dec(NativeUInt(p), OVERALLOCSIZE);
+  Result := PMemoryManagerEx(PPointer(p)^)^.UnregisterExpectedMemoryLeak(p);
+end;
+
+{ APIs to override the memory allocator }
+
 procedure OverrideMemAllocator(pGetMem : TGetMem; pReallocMem : TReallocMem;
     pFreeMem : TFreeMem);
 begin
-  GetMemoryManager(OldAllocator);
-  SetMemoryManager(CustomAllocator);
   pCustomGetMem := pGetMem;
   pCustomReallocMem := pReallocMem;
   pCustomFreeMem := pFreeMem;
@@ -55,37 +156,9 @@ end;
 
 procedure ResetMemAllocator;
 begin
-  SetMemoryManager(OldAllocator);
-end;
-
-function CustomGetMem(Size: NativeInt): Pointer;
-begin
-  Result := pCustomGetMem(Size);
-end;
-
-function CustomFreeMem(P: Pointer): Integer;
-begin
-  Result := pCustomFreeMem(p);
-end;
-
-function CustomReallocMem(P: Pointer; Size: NativeInt): Pointer;
-begin
-  Result := pCustomReallocMem(P, Size);
-end;
-
-function CustomAllocMem(Size: NativeInt): Pointer;
-begin
-  Result := OldAllocator.AllocMem(Size);
-end;
-
-function CustomRegisterExpectedMemoryLeak(P: Pointer): Boolean;
-begin
-  Result := OldAllocator.RegisterExpectedMemoryLeak(p);
-end;
-
-function CustomUnregisterExpectedMemoryLeak(P: Pointer): Boolean;
-begin
-  Result := OldAllocator.UnregisterExpectedMemoryLeak(p);
+  pCustomGetMem := nil;
+  pCustomReallocMem := nil;
+  pCustomFreeMem := nil;
 end;
 
 initialization
@@ -95,4 +168,14 @@ initialization
   CustomAllocator.AllocMem := CustomAllocMem;
   CustomAllocator.RegisterExpectedMemoryLeak := CustomRegisterExpectedMemoryLeak;
   CustomAllocator.UnregisterExpectedMemoryLeak := CustomUnregisterExpectedMemoryLeak;
+  OverridenAllocator.GetMem := nil;
+  OverridenAllocator.FreeMem := OverridenFreeMem;
+  OverridenAllocator.ReallocMem := OverridenReallocMem;
+  OverridenAllocator.AllocMem := nil;
+  OverridenAllocator.RegisterExpectedMemoryLeak := OverridenRegisterExpectedMemoryLeak;
+  OverridenAllocator.UnregisterExpectedMemoryLeak := OverridenUnregisterExpectedMemoryLeak;
+  GetMemoryManager(OldAllocator);
+  SetMemoryManager(CustomAllocator);
+finalization
+  SetMemoryManager(OldAllocator);
 end.
