@@ -72,9 +72,14 @@ begin
     // we must allocate using OldAllocator. So we will do GetMem and move memory
     // Import to note that the pointer here is already adjusted to REAL pointer start
     // So to obtain size we need to increase one NativeUInt
-    Result := CustomGetMem(Size - OVERALLOCSIZE); // Size already inflated, that's why we substract OVERALLOCSIZE
-    move(Pointer(NativeUInt(P) + OVERALLOCSIZE)^, Result^, Min(PNativeUInt(NativeUInt(P) + sizeof(Pointer))^, NativeUInt(Size - OVERALLOCSIZE)));
-    dec(NativeUInt(Result), OVERALLOCSIZE); // We need to return pointer adjusted as normal allocator would do
+    if NativeUInt(Size - OVERALLOCSIZE) <= PNativeUInt(NativeUInt(P) + sizeof(Pointer))^ then
+      Result := P
+    else
+      begin
+        Result := CustomGetMem(Size - OVERALLOCSIZE); // Size already inflated, that's why we substract OVERALLOCSIZE
+        move(Pointer(NativeUInt(P) + OVERALLOCSIZE)^, Result^, Min(PNativeUInt(NativeUInt(P) + sizeof(Pointer))^, NativeUInt(Size - OVERALLOCSIZE)));
+        dec(NativeUInt(Result), OVERALLOCSIZE); // We need to return pointer adjusted as normal allocator would do
+      end;
   end;
 end;
 
@@ -149,6 +154,7 @@ end;
 procedure OverrideMemAllocator(pGetMem : TGetMem; pReallocMem : TReallocMem;
     pFreeMem : TFreeMem);
 begin
+  Assert(Assigned(pGetMem) and Assigned(pReallocMem) and Assigned(pFreeMem));
   pCustomGetMem := pGetMem;
   pCustomReallocMem := pReallocMem;
   pCustomFreeMem := pFreeMem;
