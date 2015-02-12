@@ -73,7 +73,7 @@ begin
     // Import to note that the pointer here is already adjusted to REAL pointer start
     // So to obtain size we need to increase one NativeUInt
     Result := CustomGetMem(Size - OVERALLOCSIZE); // Size already inflated, that's why we substract OVERALLOCSIZE
-    move(Pointer(NativeUInt(P) + OVERALLOCSIZE)^, Result^, Min(PNativeUInt(NativeUInt(P) + sizeof(Pointer))^, Size - OVERALLOCSIZE));
+    move(Pointer(NativeUInt(P) + OVERALLOCSIZE)^, Result^, Min(PNativeUInt(NativeUInt(P) + sizeof(Pointer))^, NativeUInt(Size - OVERALLOCSIZE)));
     dec(NativeUInt(Result), OVERALLOCSIZE); // We need to return pointer adjusted as normal allocator would do
   end;
 end;
