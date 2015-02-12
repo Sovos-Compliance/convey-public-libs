@@ -38,7 +38,11 @@ The above copyright notice and this permission notice shall be included in
     #ifdef USE_UNICODE_DLL
       #define CNVREGEX_DLL "cnvregex_ud32_1-0-0.dll"
     #else
-      #define CNVREGEX_DLL "cnvregex_d32_1-0-0.dll"
+      #ifdef IDE_DEBUG
+        #define CNVREGEX_DLL "cnvregex.dll"
+      #else
+        #define CNVREGEX_DLL "cnvregex_d32_1-0-0.dll"
+      #endif
     #endif
   #endif
 #else
@@ -52,7 +56,7 @@ The above copyright notice and this permission notice shall be included in
     #ifdef USE_UNICODE_DLL
       #define CNVREGEX_DLL "cnvregex_ur32_1-0-0.dll"
     #else
-      #define CNVREGEX_DLL "cnvregex_r32_1-0-0.dll"
+      #define CNVREGEX_DLL "cnvregex_r32_1-0-0.dll"      
     #endif
   #endif
 #endif
