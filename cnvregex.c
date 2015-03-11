@@ -37,6 +37,7 @@ typedef void (__cdecl *OverrideMemAllocator_t)(GetMem_t pGetMem, ReallocMem_t pR
 typedef void (__cdecl *ResetMemAllocator_t)();
 
 static HMODULE RegExLib = 0;
+static volatile long RegExLibLoadCount = 0;
 
 static RegExpr_Create_t RegExpr_CreateFn = NULL;
 static RegExpr_Free_t RegExpr_FreeFn = NULL;
@@ -56,6 +57,9 @@ static ResetMemAllocator_t ResetMemAllocatorFn = NULL;
 #define DONE_DLL_FUNCTION(FNNAME) FNNAME##Fn = NULL 
 
 void InitCnvRegEx() {
+  long LoadCounter = InterlockedIncrement( &RegExLibLoadCount );
+  if( LoadCounter > 1 ) return;
+
   RegExLib = LoadLibraryA(CNVREGEX_DLL);
 
   INIT_DLL_FUNCTION(RegExpr_Create);
@@ -71,6 +75,9 @@ void InitCnvRegEx() {
 }
 
 void DoneCnvRegEx() {
+  long LoadCounter = InterlockedDecrement( &RegExLibLoadCount );
+  if( LoadCounter > 0 ) return;
+
   DONE_DLL_FUNCTION(RegExpr_Create);
   DONE_DLL_FUNCTION(RegExpr_Free);
   DONE_DLL_FUNCTION(RegExpr_SetInputString);

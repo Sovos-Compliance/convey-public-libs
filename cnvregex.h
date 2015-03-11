@@ -27,7 +27,7 @@ The above copyright notice and this permission notice shall be included in
 
 #include <Windows.h>
 
-#ifdef _DEBUG
+#ifdef _DEBUGREGEX
   #ifdef _WIN64
     #ifdef USE_UNICODE_DLL
       #define CNVREGEX_DLL "cnvregex_ud64_1-0-0.dll"
@@ -79,5 +79,6 @@ typedef void* (__cdecl *ReallocMem_t)(void* P, size_t Size);
 
 void OverrideMemAllocator(GetMem_t pGetMem, ReallocMem_t pReallocMem, FreeMem_t pFreeMem);
 void ResetMemAllocator();
+
 
 #endif
