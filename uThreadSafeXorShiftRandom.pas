@@ -19,6 +19,11 @@ resourcestring
 var
   RandSeed : array[0..1] of Int64;
 
+{$IFDEF VER180}
+function InterlockedCompareExchange64(var Destination: Int64; Exchange: Int64; Comparand: Int64): Int64; stdcall; external kernel32 name 'InterlockedCompareExchange64';
+{$EXTERNALSYM InterlockedCompareExchange64}
+{$ENDIF}
+
 function Random : Int64;
 var
   x, y : Int64;
