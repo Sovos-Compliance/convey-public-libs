@@ -106,6 +106,27 @@ type
     procedure Foreach(ACallback: TCnvIntegerDictionaryEnumerateCallback; AUserData: Pointer = nil);
   end;
 
+  TIntHashTraverseProc = procedure(UserData: Pointer; Value: integer;
+    Data: TObject; var Done: Boolean);
+  TIntHashTraverseMeth = procedure(UserData: Pointer; Value: integer;
+    Data: TObject; var Done: Boolean) of object;
+
+  _TIntegerHashTrie = class(TCnvIntegerDictionary)
+  private
+    FIntHashTraverseProc : TIntHashTraverseProc;
+    FIntHashTraverseMeth : TIntHashTraverseMeth;
+    procedure ForEachCallback(const AKey: Integer; const AValue: TObject;
+        AUserData: Pointer);
+  public
+    procedure Add(const n: integer; Data: TObject); overload;
+    procedure Delete(n: integer);
+    function Find(n: integer; var Data: TObject): Boolean; overload;
+    procedure Traverse(UserData: Pointer; UserProc: TIntHashTraverseProc); overload;
+    procedure Traverse(UserData: Pointer; UserProc: TIntHashTraverseMeth); overload;
+    function Find(n : integer): Boolean; overload;
+    procedure Add(n : integer); overload;
+  end;
+
   (* wrapper classes to support primitives(assigned to TObject) *)
   TPrimitiveWrapper = class
   end;
@@ -653,6 +674,72 @@ begin
     ForEach(ForEachCallback, UserData);
   except
     on EAbort do { Ignore }
+  end;
+end;
+
+{ _TIntegerHashTrie }
+
+procedure _TIntegerHashTrie.Add(const n: integer; Data: TObject);
+begin
+  AddOrSetValue(n, Data);
+end;
+
+procedure _TIntegerHashTrie.Add(n : integer);
+begin
+  AddOrSetValue(n, nil);
+end;
+
+procedure _TIntegerHashTrie.Delete(n: integer);
+begin
+  Remove(n);
+end;
+
+function _TIntegerHashTrie.Find(n: integer; var Data: TObject): Boolean;
+begin
+  Result := TryGetValue(n, Data);
+end;
+
+function _TIntegerHashTrie.Find(n : integer): Boolean;
+var
+  Data : TObject;
+begin
+  Result := TryGetValue(n, Data);
+end;
+
+procedure _TIntegerHashTrie.ForEachCallback(const AKey: Integer; const AValue:
+    TObject; AUserData: Pointer);
+var
+  ADone : Boolean;
+begin
+  ADone := False;
+  if assigned(FIntHashTraverseMeth) then
+    FIntHashTraverseMeth(AUserData, AKey, AValue, ADone)
+  else FIntHashTraverseProc(AUserData, AKey, AValue, ADone);
+  if ADone then
+    Abort;
+end;
+
+procedure _TIntegerHashTrie.Traverse(UserData: Pointer; UserProc:
+    TIntHashTraverseProc);
+begin
+  FIntHashTraverseProc := UserData;
+  FIntHashTraverseMeth := nil;
+  try
+    Foreach(ForEachCallback, UserData);
+  except
+    on EAbort do { ignore }
+  end;
+end;
+
+procedure _TIntegerHashTrie.Traverse(UserData: Pointer; UserProc:
+    TIntHashTraverseMeth);
+begin
+  FIntHashTraverseProc := nil;
+  FIntHashTraverseMeth := UserProc;
+  try
+    Foreach(ForEachCallback, UserData);
+  except
+    on EAbort do { ignore }
   end;
 end;
 
