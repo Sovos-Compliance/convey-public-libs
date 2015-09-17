@@ -2,10 +2,10 @@ unit uCnvDictionary;
 
 interface
 
-{$IFNDEF VER130}
-  {$IF CompilerVersion >= 21.0}
-    {$DEFINE HAS_GENERICS}
-  {$IFEND}
+{$i DelphiVersion_defines.inc}
+
+{$IFDEF DELPHIXE}
+  {$DEFINE HAS_GENERICS}
 {$ENDIF}
 
 uses
@@ -41,7 +41,8 @@ type
     procedure AddOrSetValue(const AKey: string; const AValue: Boolean); overload;
     procedure AddOrSetValueDate(const AKey: string; const AValue: TDateTime);
     procedure Remove(const AKey: string);
-    function TryGetValue(const AKey: string; out AValue: TObject): Boolean; overload;
+    function TryGetValue(const AKey: string; out AValue: TObject): Boolean;
+        overload;
     function TryGetValue(const AKey: string; out AValue: string): Boolean; overload;
     function TryGetValue(const AKey: string; out AValue: Integer): Boolean; overload;
     function TryGetValue(const AKey: string; out AValue: Int64): Boolean; overload;
@@ -51,6 +52,26 @@ type
     function ContainsKey(const AKey: string): Boolean;
     procedure Clear;
     procedure Foreach(ACallback: TCnvStringDictionaryEnumerateCallback; AUserData: Pointer = nil);
+  end;
+
+  TStrHashTraverseProc = procedure(UserData: Pointer; Value: PChar;
+    Data: TObject; var Done: Boolean);
+  TStrHashTraverseMeth = procedure(UserData: Pointer; Value: PChar;
+    Data: TObject; var Done: Boolean) of object;
+
+  _TStringHashTrie = class(TCnvStringDictionary)
+  private
+    FStrHashTraverseProc : TStrHashTraverseProc;
+    FStrHashTraverseMeth : TStrHashTraverseMeth;
+    procedure ForEachCallback(const AKey: string; const AValue: TObject; AUserData: Pointer);
+  public
+    procedure Add(const S: string; Data: TObject); overload;
+    procedure Add(const s : string); overload;
+    procedure Delete(const S: string);
+    function Find(const S: string; var Data: TObject): Boolean; overload;
+    function Find(const s : string): Boolean; overload;
+    procedure Traverse(UserData: Pointer; UserProc: TStrHashTraverseProc); overload;
+    procedure Traverse(UserData: Pointer; UserProc: TStrHashTraverseMeth); overload;
   end;
 
   (* Associative array with integer key implementation *)
@@ -138,6 +159,9 @@ type
   end;
 
 implementation
+
+uses
+  SysUtils;
 
 { TCnvStringDictionary }
 
@@ -261,8 +285,8 @@ begin
 {$ENDIF}
 end;
 
-function TCnvStringDictionary.TryGetValue(const AKey: string;
-  out AValue: TObject): Boolean;
+function TCnvStringDictionary.TryGetValue(const AKey: string; out AValue:
+    TObject): Boolean;
 begin
 {$IFDEF HAS_GENERICS}
   Result := FDic.TryGetValue(AKey, AValue);
@@ -563,6 +587,73 @@ end;
 constructor TDateTimeWrapper.Create(AValue: TDateTime);
 begin
   FValue := AValue;
+end;
+
+{ _TStringHashTrie }
+
+procedure _TStringHashTrie.Add(const S: string; Data: TObject);
+begin
+  AddOrSetValue(S, Data);
+end;
+
+procedure _TStringHashTrie.Add(const s : string);
+begin
+  AddOrSetValue(S, nil);
+end;
+
+procedure _TStringHashTrie.Delete(const S: string);
+begin
+  Remove(S);
+end;
+
+function _TStringHashTrie.Find(const S: string; var Data: TObject):
+    Boolean;
+begin
+  Result := TryGetValue(S, Data);
+end;
+
+function _TStringHashTrie.Find(const s : string): Boolean;
+var
+  Dummy : TObject;
+begin
+  Result := TryGetValue(S, Dummy);
+end;
+
+procedure _TStringHashTrie.ForEachCallback(const AKey: string; const
+    AValue: TObject; AUserData: Pointer);
+var
+  ADone : Boolean;
+begin
+  ADone := False;
+  if assigned(FStrHashTraverseMeth) then
+    FStrHashTraverseMeth(AUserData, PChar(AKey), AValue, ADone)
+  else FStrHashTraverseProc(AUserData, PChar(AKey), AValue, ADone);
+  if ADone then
+    Abort;
+end;
+
+procedure _TStringHashTrie.Traverse(UserData: Pointer; UserProc:
+    TStrHashTraverseProc);
+begin
+  FStrHashTraverseProc := UserProc;
+  FStrHashTraverseMeth := nil;
+  try
+    ForEach(ForEachCallback, UserData);
+  except
+    on EAbort do { Ignore }
+  end;
+end;
+
+procedure _TStringHashTrie.Traverse(UserData: Pointer; UserProc:
+    TStrHashTraverseMeth);
+begin
+  FStrHashTraverseMeth := UserProc;
+  FStrHashTraverseProc := nil;
+  try
+    ForEach(ForEachCallback, UserData);
+  except
+    on EAbort do { Ignore }
+  end;
 end;
 
 end.
