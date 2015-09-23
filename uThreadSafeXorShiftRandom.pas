@@ -4,7 +4,8 @@ unit uThreadSafeXorShiftRandom;
 
 interface
 
-function Random : Int64;
+function Random : Int64; overload;
+function Random(const Range : Int64) : Int64; overload;
 procedure Randomize;
 procedure SetRandSeed(ALowPart, AHighPart : Int64);
 
@@ -24,7 +25,7 @@ function InterlockedCompareExchange64(var Destination: Int64; Exchange: Int64; C
 {$EXTERNALSYM InterlockedCompareExchange64}
 {$ENDIF}
 
-function Random : Int64;
+function Random : Int64; overload;
 var
   x, y : Int64;
 begin
@@ -37,6 +38,11 @@ begin
   x := x xor (y xor (y shr 26));
   RandSeed[1] := x;
   Result := x + y;
+end;
+
+function Random(const Range : Int64) : Int64; overload;
+begin
+  Result := abs(uThreadSafeXorShiftRandom.Random) mod Range;
 end;
 
 procedure Randomize;
