@@ -722,7 +722,7 @@ end;
 procedure _TIntegerHashTrie.Traverse(UserData: Pointer; UserProc:
     TIntHashTraverseProc);
 begin
-  FIntHashTraverseProc := UserData;
+  FIntHashTraverseProc := UserProc;
   FIntHashTraverseMeth := nil;
   try
     Foreach(ForEachCallback, UserData);
