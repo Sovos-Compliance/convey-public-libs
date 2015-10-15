@@ -58,7 +58,7 @@ begin
       tkInteger  : SetOrdProp (AObject, p,  integer (v));
       tkEnumeration : SetEnumProp (AObject, p, string (v));
       tkFloat : SetFloatProp (AObject, p, extended (v));
-      tkString, tkChar, tkWChar : SetStrProp (AObject, p, ShortString (v));
+      tkString, tkChar, tkWChar : SetStrProp (AObject, p, string(ShortString (v)));
       tkSet : SetSetProp (AObject, p, string (v));
       tkLString : SetStrProp (AObject, p, string (v));
       tkWString : SetStrProp (AObject, p, widestring (v));
@@ -73,7 +73,7 @@ begin
   p := GetPropInfo (AObject, APropName);
   if p <> nil
     then case p^.PropType^.Kind of
-      tkString, tkChar, tkWChar : SetStrProp (AObject, p, GetStrProp (AObject, p) + ShortString (v));
+      tkString, tkChar, tkWChar : SetStrProp (AObject, p, GetStrProp (AObject, p) + string(ShortString (v)));
       tkLString : SetStrProp (AObject, p, GetStrProp (AObject, p) + string (v));
       tkWString : SetStrProp (AObject, p, GetStrProp (AObject, p) + widestring (v));
     end;

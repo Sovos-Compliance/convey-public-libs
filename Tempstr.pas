@@ -33,7 +33,7 @@ var
 implementation
 
 uses
-  SysUtils, Windows;
+  SysUtils, Windows, Types;
 
 function TTempFileStream.CreateTempFile(const APrefix : string): string;
 var

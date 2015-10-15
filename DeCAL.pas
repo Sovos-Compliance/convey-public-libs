@@ -6588,7 +6588,7 @@ begin
     vtBoolean: Result := Ord(obj1.VBoolean) - Ord(obj2.VBoolean);
     vtChar: Result := Ord(obj1.VChar) - Ord(obj2.VChar);
     vtExtended: Result := SignExt(obj1.VExtended^ -obj2.VExtended^);
-    vtString: Result := CompareStr(obj1.VString^, obj2.VString^);
+    vtString: Result := CompareStr(string(obj1.VString^), string(obj2.VString^));
     vtPointer: Result := SignInteger(Integer(obj1.VPointer), Integer(obj2.VPointer));
     vtPChar: Result := SignInteger(Integer(obj1.VPChar), Integer(obj2.VPChar));
     vtObject: Result := SignInteger(Integer(obj1.VObject), Integer(obj2.VObject));
@@ -11972,9 +11972,9 @@ begin
         else
           Result := 'False';
       end;
-    vtChar: Result := obj.vchar;
+    vtChar: Result := Char(obj.vchar);
     vtExtended: Result := Format('%g', [obj.vextended^]);
-    vtString: Result := obj.vstring^;
+    vtString: Result := string(obj.vstring^);
     vtWideChar: Result := WideCharLenToString(@obj.vwidechar, 1);
     vtAnsiString: Result := string(obj.vansiString);
     vtCurrency: Result := Format('%m', [obj.vcurrency^]);
