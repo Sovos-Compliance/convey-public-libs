@@ -3,6 +3,7 @@ unit uMultiReaderWriteSynchronizerFixed;
 interface
 
 {$IFNDEF VER180}
+{$IF CompilerVersion < 11.0} // Delphi 2007
 
 uses
   SysUtils, Windows;
@@ -215,11 +216,13 @@ type
     procedure Close(var Thread: PThreadInfo2);
   end;
 
+{$IFEND}
 {$ENDIF}
 
 implementation
 
 {$IFNDEF VER180}
+{$IF CompilerVersion < 11.0} { Delphi 2007 }
 
 { TThreadLocalCounter2
   This implementation will replace TThreadLocalCounter in the next major release,
@@ -615,6 +618,7 @@ begin
 end;
 
 
+{$IFEND}
 {$ENDIF}
 
 end.
