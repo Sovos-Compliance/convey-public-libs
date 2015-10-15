@@ -319,7 +319,7 @@ begin
   while i <= Length (s)  do
     begin
       Move (s [i], Hex [1], 2);
-      c := char (HexToInt (Hex));
+      c := char (HexToInt (string(Hex)));
       Move (c, Result [(i + 1) div 2], 1);
       Inc (i, 2);
     end;
@@ -458,9 +458,9 @@ begin
       Inc(UnitType);
     end;
   if i <= 0 then
-    Result := IntToStr(b) + ' ' + Units[UnitType-1]
+    Result := IntToStr(b) + ' ' + string(Units[UnitType-1])
   else
-    Result := FloatToStrF(i, ffNumber, 15, 2) + ' ' + Units[UnitType]
+    Result := FloatToStrF(i, ffNumber, 15, 2) + ' ' + string(Units[UnitType]);
 end;
 
 function RemoveSymbolsAndNumbers(const s : string): string;
