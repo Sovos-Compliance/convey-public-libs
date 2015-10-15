@@ -30,6 +30,7 @@ function BoolToText (Value : boolean) : char;
 function EliminateWhiteSpaces (const s : string) : string;
 function EliminateChars (const s : string; const chars : TCharSet) : string;
 procedure SanitizeString(var s : string); // Removes non ascii chars but will keep Word compatible control chars (9, 11, 12, 13, 14, 30, 31 and 160)
+function SanitizeJSonValue(const s: string): string;
 function LastPartOfName (const s : String) : string;
 function FirstPartOfName(const s : string): string;
 procedure MixTStrings(Source, Dest : TStrings; FromIndex : Integer = 0);
@@ -40,17 +41,17 @@ procedure RemoveBlankItems(List : TStringList);
 function FirstNonEmptyString(const Strs : array of string): string;
 function AddStrings(const Items : array of string): String; overload;
 function AddStrings(const Items, Items2 : array of string): String; overload;
-function IndexOf(const Items : array of string; const Item : String; 
+function IndexOf(const Items : array of string; const Item : String;
     CaseSensitive : boolean = false): Integer;
 procedure DeleteFromArray(var Items: TStringArray; AElementIndex: integer);
 function ExtractValue(const s : string): string;
 function ExtractName(const s : string): string;
 function SplitNameAndValue(const s : string; var AName, AValue : string): Boolean;
 function ConvertToMixedCaseString(const s : string): string;
-function CnvWrapText(const Line, BreakStr: string; MaxWidth: Integer; Canvas : 
+function CnvWrapText(const Line, BreakStr: string; MaxWidth: Integer; Canvas :
     TCanvas): string;
 function CnvSimpleWrapText(const Line: string; MaxWidth: Integer): string;
-	
+
 function HexToInt(Value : string) : integer;
 function StringToHex(const s : string): string;
 function HexToString(const s : string): string;
@@ -244,7 +245,7 @@ begin
     Result := Result + Items [i] + Items2 [i];
 end;
 
-function IndexOf(const Items : array of string; const Item : String; 
+function IndexOf(const Items : array of string; const Item : String;
     CaseSensitive : boolean = false): Integer;
 var
   i : Integer;
@@ -404,7 +405,7 @@ begin
     else Result := s;
 end;
 
-function SplitNameAndValue(const s : string; var AName, AValue : string): 
+function SplitNameAndValue(const s : string; var AName, AValue : string):
     Boolean;
 var
   p : Integer;
@@ -843,6 +844,18 @@ begin
                 system.Copy(AStr, length(AStr) - MaxLen div 2 + 1, length(AStr));
     end
     else Result := AStr;
+end;
+
+function SanitizeJSonValue(const s: string): string;
+const
+  JSonSpecialChars : array [0..3] of string = ('\', '"', #10, #13);
+  JSonSpecialCharsReplacement : array [0..3] of string = ('\\', '\"', '\n', '\r');
+var
+  i : integer;
+begin
+  result := s;
+  for i := Low(JSonSpecialChars) to High(JSonSpecialChars) do
+    result := StringReplace(result, JSonSpecialChars[i], JSonSpecialCharsReplacement[i], [rfReplaceAll]);
 end;
 
 var
