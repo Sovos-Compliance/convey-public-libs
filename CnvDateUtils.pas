@@ -117,7 +117,7 @@ var
   i : Integer;
 begin
   Inc (ChangesCount);
-  if ChangesCount > 0
+  if ChangesCount > 1
     then Exit;
   {$IFDEF DELPHIXE}
   with FormatSettings do
