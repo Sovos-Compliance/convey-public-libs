@@ -1,0 +1,2186 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{00a2402a-3f30-4370-99a9-1c967389fd42}</ProjectGuid>
+    <MainSource>TestConveyPublicLibs_D2007.dpr</MainSource>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
+    <DCC_DependencyCheckOutputName>bin\d2007\TestConveyPublicLibs_D2007.exe</DCC_DependencyCheckOutputName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Version>7.0</Version>
+    <DCC_DebugInformation>False</DCC_DebugInformation>
+    <DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
+    <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+    <DCC_Define>RELEASE</DCC_Define>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <Version>7.0</Version>
+    <DCC_Define>_CONSOLE_TESTRUNNER;DEBUG</DCC_Define>
+    <DCC_ExeOutput>.\bin\d2007\</DCC_ExeOutput>
+    <DCC_DcuOutput>.\intermediate\d2007\</DCC_DcuOutput>
+    <DCC_ObjOutput>.\intermediate\d2007\</DCC_ObjOutput>
+    <DCC_HppOutput>.\intermediate\d2007\</DCC_HppOutput>
+    <DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;$(BDS)\Lib;..\</DCC_UnitSearchPath>
+    <DCC_ResourcePath>$(BDS)\Source\DUnit\src;$(BDS)\Lib;..\</DCC_ResourcePath>
+    <DCC_ObjPath>$(BDS)\Source\DUnit\src;$(BDS)\Lib;..\</DCC_ObjPath>
+    <DCC_IncludePath>$(BDS)\Source\DUnit\src;$(BDS)\Lib;..\</DCC_IncludePath>
+  </PropertyGroup>
+  <ProjectExtensions>
+    <Borland.Personality>Delphi.Personality</Borland.Personality>
+    <Borland.ProjectType>VCLApplication</Borland.ProjectType>
+    <BorlandProject>
+<BorlandProject><Delphi.Personality><Parameters><Parameters Name="UseLauncher">False</Parameters><Parameters Name="LoadAllSymbols">True</Parameters><Parameters Name="LoadUnspecifiedSymbols">False</Parameters></Parameters><VersionInfo><VersionInfo Name="IncludeVerInfo">False</VersionInfo><VersionInfo Name="AutoIncBuild">False</VersionInfo><VersionInfo Name="MajorVer">1</VersionInfo><VersionInfo Name="MinorVer">0</VersionInfo><VersionInfo Name="Release">0</VersionInfo><VersionInfo Name="Build">0</VersionInfo><VersionInfo Name="Debug">False</VersionInfo><VersionInfo Name="PreRelease">False</VersionInfo><VersionInfo Name="Special">False</VersionInfo><VersionInfo Name="Private">False</VersionInfo><VersionInfo Name="DLL">False</VersionInfo><VersionInfo Name="Locale">1033</VersionInfo><VersionInfo Name="CodePage">1252</VersionInfo></VersionInfo><VersionInfoKeys><VersionInfoKeys Name="CompanyName"></VersionInfoKeys><VersionInfoKeys Name="FileDescription"></VersionInfoKeys><VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="InternalName"></VersionInfoKeys><VersionInfoKeys Name="LegalCopyright"></VersionInfoKeys><VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys><VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys><VersionInfoKeys Name="ProductName"></VersionInfoKeys><VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="Comments"></VersionInfoKeys></VersionInfoKeys><Excluded_Packages>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <Excluded_Packages Name="$(BDS)\bin\dcl31w100.bpl">Delphi 1.0 Compatibility Components</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclstd100.bpl">CodeGear Standard Components</Excluded_Packages>
+      <Excluded_Packages Name="C:\Windows\system32\vclimg100.bpl">CodeGear Delphi image support library</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclact100.bpl">CodeGear ActionBar Components</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclbde100.bpl">CodeGear BDE DB Components</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dcldb100.bpl">CodeGear Database Components</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dbx100.bpl">CodeGear SQL Explorer UI Package</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclemacsedit100.bpl">CodeGear Editor Emacs Enhancements</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclmlwiz100.bpl">CodeGear Markup Language Wizards</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclsmpedit100.bpl">CodeGear Editor Script Enhancements</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\Bin\dclib100.bpl">Borland InterBase Express Components</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclado100.bpl">CodeGear ADO DB Components</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dcldbx4100.bpl">CodeGear dbExpress Components</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclsmp100.bpl">CodeGear Sample Components</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclie100.bpl">Internet Explorer Components</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclnet100.bpl">CodeGear Internet Components</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclsoap100.bpl">CodeGear SOAP Components</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclsockets100.bpl">CodeGear Socket Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\cnvdspk_d2007.bpl">Convey DataSource</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\cnvt_D2007.bpl">Convey Timer</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\tb97_d2007.bpl">Toolbar 97</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\amenus_d2007.bpl">Animated Menus Component Suite</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDcp\kbmMemTable_d2007.bpl">KbmMemTable Component</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\D7CompatPkg_D2007.bpl">Delphi 7 Compatibility Package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\picsedit_d2007.bpl">PicsEdit Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\CnvMisc_d2007.bpl">Convey Miscelaneous Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\IncITems_d2007.bpl">Included Items Package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\halcyon6_d2007.bpl">Halcyon 6</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\SakEmail_d2007.bpl">SakEmail by the SakEmail team</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\b106_d_d2007.bpl">Abbrevia Components DesignTime Package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\busyproc_d2007.bpl">Busy Notifier Component</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\clinetsuited11.bpl">Clever Internet Suite</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\cnvcombocustomdrawer_d2007.bpl">ComboBox Custom Drawer</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\cnvoutlv_d2007.bpl">Convey Outlook ListView</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dcoutbar_d2007.bpl">Dream Outbar</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\cnvscrbox_d2007.bpl">Convey ScrollBox</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\Misc_d2007.bpl">Misc Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\mk_regex_D2007.bpl">Regular Expressions Parser</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\FCtrls_D2007.bpl">Flat Controls</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\FlatStyle_D2007.bpl">Flat Style Controls</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\mydbnav_d2007.bpl">My DB Navigator Component</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dcleasytable_d2007.bpl">EasyTable Designtime Package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dclzipforged_d2007.bpl">ZipForge - Design package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\creditspack_d2007.bpl">Credits ScrollBox Package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dbbtns_d2007.bpl">DB Buttons</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDcp\PTShellControlPack_D2007.bpl">Shell Control Pack V1.7b</Excluded_Packages>
+      <Excluded_Packages Name="dclaqDockingManagerD11.bpl">AutomatedDocking Library (VCL Edition) by AutomatedQA Corp.</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\RelayEng_d2007.bpl">Relay Engine Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dclrx_d2007.bpl">RX Library Controls and Tools</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dclrxbd_d2007.bpl">RX Library BDE Database Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\DCLRXDB_D2007.bpl">RX Library Database Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dcltgl7_d2007.bpl">TeeChart 7 for OpenGL Design Time Package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dirmonitor_d2007.bpl">Directory Monitor</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dmp3pack_d2007.bpl">Direct MP3 Player component</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dragdrop_d2007.bpl">Drag and Drop Component Suite</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dwinsockpack_d2007.bpl">DWinsock Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\excelimport_d2007.bpl">Excel Import Component</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\fadingcredits_d2007.bpl">Fading Credits</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\formsbar_d2007.bpl">FormsBar97 Toolbar</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\importlayoutpack_d2007.bpl">Import Layout Package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\ims_d2007.bpl">Internet Mail Suite</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\inipropspack_d2007.bpl">TIniPropSav component</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\NativeExcelD2007.bpl">Native Excel Package for Delphi 2007</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\kdatasetdbinfo_d2007.bpl">DBInfo for linked datasets</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\sq_d2007.bpl">Simple Query package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\miscunits_d2007.bpl">Colin Wilson - Miscellaneous Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\mnu2knvi_d2007.bpl">Non published properties for TMenuItem2000</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\p162_dd2007.bpl">TurboPower OfficePartner 1.62 Design-time package - VCL50</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\pbsharepack_d2007.bpl">BakSoft-Denmark - PBSharePack</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\quickpdfdt_d11.bpl">EMS Advanced PDF Generator 1.1</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\scheduler_d2007.bpl">Dream Scheduler Package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\sqlmpack_d2007.bpl">SQLm Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\sqpro_d2007.bpl">Simple Query Pro package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\v103_dd2007.bpl">TurboPower VisualPlanIt 1.03 designtime package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\vccomps_d2007.bpl">Version Control Client Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\virtualtreesd11d.bpl">Virtual Treeview design time package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\vt_addons_d2007.bpl">Virtual Treeview addons</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\xlsrwii20_d2007.bpl">Turbo Delphi Direct Excel Package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\XLSII4_D2007.bpl">XLSReadWriteII Version 4</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\applet100.bpl">CodeGear Control Panel Applet Package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\a306_dd2007.bpl">Async Professional Components Design Time</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\buildercontrolspackage_td.bpl">BuilderControls RunTime</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\cooldtpackage_d2007.bpl">Cool components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dcldad107_td.bpl">ReportBuilder Data Access Environment</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dclRBP107_TD.bpl">ReportBuilder Professional</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dclfs_d2007.bpl">FastScript 1.7 Components Design Time</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dclfsado_d2007.bpl">FastScript 1.7 ADO Components Design Time</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dclfsbde_d2007.bpl">FastScript 1.7 BDE Components Design Time</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dclfsdb_d2007.bpl">FastScript 1.7 DB Components Design Time</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dcpdelphi2007.bpl">DCPcrypt cryptographic component library v2 BETA 3</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dpkiectrl_d2007.bpl">ImageEn Controls Design Time</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dpkiedb_d2007.bpl">ImageEn DB Controls Design Time Package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\IBOAdmin_D2007.bpl">IBO Interbase Administration Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\IBO40ADT_D2007.bpl">IB Objects Native Data Access Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\IBO40CDT_D2007.bpl">IB Objects Core Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\IBO40EDT_D2007.bpl">IB Objects Editors</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\IBO40FDT_D2007.bpl">IB Objects Forms and Dialogs</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\IBO40FTS_D2007.bpl">IB Objects Full Text Search</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\IBO40RPL_D2007.bpl">IB Objects Replication</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\IBO40TDT_D2007.bpl">IB Objects Tools Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\IBO40VDT_D2007.bpl">IB Objects Visual Controls</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\IBO40WDT_D2007.bpl">IB Objects Internet Extensions</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\IBO40WXDT_D2007.bpl">IB Objects TDataset Internet Extensions</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\IBO40XDT_D2007.bpl">IB Objects TDataset</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\jvmixpack.bpl">JVCL Mix Pack</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\ieaddon_d2007.bpl">ImageEn Addon Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\kbmMemD2007Des.bpl">kbmMemTable5 designtime package for BDS 2007 Delphi/Win32</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\msgconnectfulld11.bpl">MsgConnect package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\rbado107_td.bpl">ReportBuilder Data Access for ADO</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\rbdbde107_td.bpl">ReportBuilder Data Access for BDE</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\rbdbe107_td.bpl">ReportBuilder Data Access for dbExpress</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\rbibe107_td.bpl">ReportBuilder Data Access for Interbase Express</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\tftp_d2007.bpl">FTP server</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\Utilities_D2007.bpl">Open XML Utilities Library</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\xdom_3_2d2007.bpl">Open XML Extended Document Object Model (XDOM 3.2)</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\ManchesterMiscComps.bpl">Manchester Miscelaneous Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\FlatColorCombo_d2007.bpl">Flat Color ComboBox</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\rscontrolsdsgn_d2007.bpl">RadarCube Controls</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\FrameViewer2007.bpl">ThtmlViewer, TFrameViewer, and TFrameBrowser</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\DreamEdit_D2007.bpl">Dream Editor Package</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\dclmid100.bpl">CodeGear MyBase DataAccess Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\exceptionexpert11.bpl">EurekaLog 6.0.2</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\amaddons_d2007.bpl">Animated Menus Add-Ons</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\actpanel_d2007.bpl">Activity Panel</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\Dream_d2007.bpl">Dream Controls</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\cnvpgctr_d2007.bpl">Convey Page Control</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\Mainmenu97pack_d2007.bpl">MainMenu97 Component</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\mcrsqlrt_d2007.bpl">Macro SQL component runtime package (Must Install)</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\sqlconn_d2007.bpl">SQL Connectors Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\midpkg_d2007.bpl">Midas Registrations</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\xq_d2007.bpl">TXQuery SQL component</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\msqlfend_d2007.bpl">MacroSQL Front End Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\mcrsqlds_d2007.bpl">MarcoSQL Design time package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\msqlfdsg_d2007.bpl">Design Time package for MacroSQL Front-End</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\o308_dd2007.bpl">Orpheus Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\o308bdd2007.bpl">Orpheus Data-Aware Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dbgrdcol_d2007.bpl">DBGrid non-published Columns property for TPropsSaver</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dcgtran_d2007.bpl">DCOutBar Translator for PropsSaver</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDcp\TeeImage7_D2007.bpl">TeeChart Pro 7 Graphic Formats</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\calmand_d2007.bpl">Calculator for Edit components Design Time Package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\cnvaliaspack_d2007.bpl">Cnv DB Alias component</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\cnvSec_d2007.bpl">Convey Security Package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\cnvfrsys_d2007.bpl">Runtime Convey Frame Package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\RelayE_d2007.bpl">RelayEdit  specific components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dclindy_d2007.bpl">Internet Direct (Indy) Property and Component Editors</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dcltee7_d2007.bpl">TeeChart 7 Components Design Time Package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dclteepro7_d2007.bpl">TeeChart Pro 7 Components Design Time Packages</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\flatorp_d2007.bpl">Flat Style DB components with Attached Label</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\psavds_d2007.bpl">Properties Saver Package</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\tb97nvis_d2007.bpl">Toolbar97 Non-Visual properties for PropSaver</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dclrbc107_td.bpl">ReportBuilder TeeChart 4.04 Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\rsradarcubedsgn_d2007.bpl">RadarCube Library</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\rschart_d2007.bpl">RadarCube Chart</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\CnvDateEdit_D2007.bpl">Convey Date Time editbox</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\resman_d2007.bpl">Convey Resource Manager</Excluded_Packages>
+      <Excluded_Packages Name="X:\__Dev\__Source\__Libraries\VIRT_PaxCompiler\bin\win32\debug\PaxCompiler_D11.bpl">(untitled)</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\cprecompiler_d2007.bpl">C PreCompiler</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\vclsqlds_d2007.bpl">SQLConnectors Design Time VCL Components</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dclfrx_d2007.bpl">FastReport 3.0 Components DesignTime</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dclfrxado_d2007.bpl">FastReport 3.0 ADO Components Design Time</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dclfrxbde_d2007.bpl">FastReport 3.0 BDE Components Design Time</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dclfrxcs_d2007.bpl">FastReport 3.0 Client/Server Components Design Time</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dclfrxdb_d2007.bpl">FastReport 3.0 DB Components Design Time</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\dclfrxe_d2007.bpl">FastReport 3.0 Exports Design Time</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDcp\AqConnPack_D2007.bpl">AQDevTeam SQL Connector</Excluded_Packages>
+      <Excluded_Packages Name="X:\Lib\D2007\BplDCP\PeteMixPack_D2007.bpl">PETE Miscelaneous Components</Excluded_Packages>
+    </Excluded_Packages><Source><Source Name="MainSource">TestConveyPublicLibs_D2007.dpr</Source></Source></Delphi.Personality></BorlandProject></BorlandProject>
+  </ProjectExtensions>
+  <Import Project="$(MSBuildBinPath)\Borland.Delphi.Targets" />
+  <ItemGroup>
+    <DelphiCompile Include="TestConveyPublicLibs_D2007.dpr">
+      <MainSource>MainSource</MainSource>
+    </DelphiCompile>
+    <DCCReference Include="TestDeCAL.pas" />
+  </ItemGroup>
+</Project>
+<!-- EurekaLog First Line
+[Exception Log]
+EurekaLog Version=6002
+Activate=0
+Activate Handle=1
+Save Log File=1
+Foreground Tab=0
+Freeze Activate=0
+Freeze Timeout=60
+SMTP From=eurekalog@email.com
+SMTP Host=
+SMTP Port=25
+SMTP UserID=
+SMTP Password=
+Append to Log=0
+TerminateBtn Operation=2
+Errors Number=32
+Errors Terminate=3
+Email Address=
+Email Object=
+Email Send Options=0
+Output Path=
+Encrypt Password=
+AutoCloseDialogSecs=0
+WebSendMode=0
+SupportULR=
+HTMLLayout Count=15
+HTMLLine0="%3Chtml%3E"
+HTMLLine1="  %3Chead%3E"
+HTMLLine2="  %3C/head%3E"
+HTMLLine3="  %3Cbody TopMargin=10 LeftMargin=10%3E"
+HTMLLine4="    %3Ctable width="100%%" border="0"%3E"
+HTMLLine5="      %3Ctr%3E"
+HTMLLine6="        %3Ctd nowrap%3E"
+HTMLLine7="          %3Cfont face="Lucida Console, Courier" size="2"%3E"
+HTMLLine8="            %3C%%HTML_TAG%%%3E"
+HTMLLine9="          %3C/font%3E"
+HTMLLine10="        %3C/td%3E"
+HTMLLine11="      %3C/tr%3E"
+HTMLLine12="    %3C/table%3E"
+HTMLLine13="  %3C/body%3E"
+HTMLLine14="%3C/html%3E"
+AutoCrashOperation=2
+AutoCrashNumber=10
+AutoCrashMinutes=1
+WebURL=
+WebUserID=
+WebPassword=
+WebPort=0
+AttachedFiles=
+ProxyURL=
+ProxyUser=
+ProxyPassword=
+ProxyPort=8080
+TrakerUser=
+TrakerPassword=
+TrakerAssignTo=
+TrakerProject=
+TrakerCategory=
+TrakerTrialID=
+ZipPassword=
+PreBuildEvent=
+PostSuccessfulBuildEvent=
+PostFailureBuildEvent=
+ExceptionDialogType=2
+Count=0
+EMail Message Line Count=0
+loNoDuplicateErrors=0
+loAppendReproduceText=0
+loDeleteLogAtVersionChange=0
+loAddComputerNameInLogFileName=0
+loSaveModulesAndProcessesSections=1
+loSaveAssemblerAndCPUSections=1
+soAppStartDate=1
+soAppName=1
+soAppVersionNumber=1
+soAppParameters=1
+soAppCompilationDate=1
+soAppUpTime=1
+soExcDate=1
+soExcAddress=1
+soExcModuleName=1
+soExcModuleVersion=1
+soExcType=1
+soExcMessage=1
+soExcID=1
+soExcCount=1
+soExcStatus=1
+soExcNote=1
+soUserID=1
+soUserName=1
+soUserEmail=1
+soUserPrivileges=1
+soUserCompany=1
+soActCtlsFormClass=1
+soActCtlsFormText=1
+soActCtlsControlClass=1
+soActCtlsControlText=1
+soCmpName=1
+soCmpTotalMemory=1
+soCmpFreeMemory=1
+soCmpTotalDisk=1
+soCmpFreeDisk=1
+soCmpSysUpTime=1
+soCmpProcessor=1
+soCmpDisplayMode=1
+soCmpDisplayDPI=1
+soCmpVideoCard=1
+soCmpPrinter=1
+soOSType=1
+soOSBuildN=1
+soOSUpdate=1
+soOSLanguage=1
+soOSCharset=1
+soNetIP=1
+soNetSubmask=1
+soNetGateway=1
+soNetDNS1=1
+soNetDNS2=1
+soNetDHCP=1
+soCustomData=1
+sndShowSendDialog=1
+sndShowSuccessFailureMsg=0
+sndSendEntireLog=0
+sndSendXMLLogCopy=0
+sndSendScreenshot=1
+sndUseOnlyActiveWindow=0
+sndSendLastHTMLPage=1
+sndSendInSeparatedThread=0
+sndAddDateInFileName=0
+sndAddComputerNameInFileName=0
+edoSendErrorReportChecked=1
+edoAttachScreenshotChecked=1
+edoShowCopyToClipOption=1
+edoShowDetailsButton=1
+edoShowInDetailedMode=0
+edoShowInTopMostMode=0
+edoUseEurekaLogLookAndFeel=0
+edoShowSendErrorReportOption=1
+edoShowAttachScreenshotOption=1
+edoShowCustomButton=0
+csoShowDLLs=1
+csoShowBPLs=1
+csoShowBorlandThreads=1
+csoShowWindowsThreads=1
+csoDoNotStoreProcNames=0
+boPauseBorlandThreads=0
+boDoNotPauseMainThread=0
+boPauseWindowsThreads=0
+boUseMainModuleOptions=1
+boCopyLogInCaseOfError=1
+boSaveCompressedCopyInCaseOfError=0
+boHandleSafeCallExceptions=0
+boCallRTLExceptionEvent=0
+boCatchHandledExceptions=0
+loCatchLeaks=0
+loGroupsSonLeaks=1
+loHideBorlandLeaks=1
+loFreeAllLeaks=1
+loCatchLeaksExceptions=1
+cfoReduceFileSize=1
+cfoCheckFileCorruption=0
+Count mtInformationMsgCaption=1
+mtInformationMsgCaption0="Information."
+Count mtQuestionMsgCaption=1
+mtQuestionMsgCaption0="Question."
+Count mtErrorMsgCaption=1
+mtErrorMsgCaption0="Error."
+Count mtDialog_Caption=1
+mtDialog_Caption0="Error occurred"
+Count mtDialog_ErrorMsgCaption=2
+mtDialog_ErrorMsgCaption0="An error has occurred during program execution."
+mtDialog_ErrorMsgCaption1="Please read the following information for further details."
+Count mtDialog_GeneralCaption=1
+mtDialog_GeneralCaption0="General"
+Count mtDialog_GeneralHeader=1
+mtDialog_GeneralHeader0="General Information"
+Count mtDialog_CallStackCaption=1
+mtDialog_CallStackCaption0="Call Stack"
+Count mtDialog_CallStackHeader=1
+mtDialog_CallStackHeader0="Call Stack Information"
+Count mtDialog_ModulesCaption=1
+mtDialog_ModulesCaption0="Modules"
+Count mtDialog_ModulesHeader=1
+mtDialog_ModulesHeader0="Modules Information"
+Count mtDialog_ProcessesCaption=1
+mtDialog_ProcessesCaption0="Processes"
+Count mtDialog_ProcessesHeader=1
+mtDialog_ProcessesHeader0="Processes Information"
+Count mtDialog_AsmCaption=1
+mtDialog_AsmCaption0="Assembler"
+Count mtDialog_AsmHeader=1
+mtDialog_AsmHeader0="Assembler Information"
+Count mtDialog_CPUCaption=1
+mtDialog_CPUCaption0="CPU"
+Count mtDialog_CPUHeader=1
+mtDialog_CPUHeader0="CPU Information"
+Count mtDialog_OKButtonCaption=1
+mtDialog_OKButtonCaption0="%26OK"
+Count mtDialog_TerminateButtonCaption=1
+mtDialog_TerminateButtonCaption0="%26Terminate"
+Count mtDialog_RestartButtonCaption=1
+mtDialog_RestartButtonCaption0="%26Restart"
+Count mtDialog_DetailsButtonCaption=1
+mtDialog_DetailsButtonCaption0="%26Details"
+Count mtDialog_CustomButtonCaption=1
+mtDialog_CustomButtonCaption0="%26Help"
+Count mtDialog_SendMessage=1
+mtDialog_SendMessage0="%26Send this error via Internet"
+Count mtDialog_ScreenshotMessage=1
+mtDialog_ScreenshotMessage0="%26Attach a Screenshot image"
+Count mtDialog_CopyMessage=1
+mtDialog_CopyMessage0="%26Copy to Clipboard"
+Count mtDialog_SupportMessage=1
+mtDialog_SupportMessage0="Go to the Support Page"
+Count mtMSDialog_ErrorMsgCaption=1
+mtMSDialog_ErrorMsgCaption0="The application has encountered a problem. We are sorry for the inconvenience."
+Count mtMSDialog_RestartCaption=1
+mtMSDialog_RestartCaption0="Restart application."
+Count mtMSDialog_TerminateCaption=1
+mtMSDialog_TerminateCaption0="Terminate application."
+Count mtMSDialog_PleaseCaption=1
+mtMSDialog_PleaseCaption0="Please tell us about this problem."
+Count mtMSDialog_DescriptionCaption=1
+mtMSDialog_DescriptionCaption0="We have created an error report that you can send to us. We will treat this report as confidential and anonymous."
+Count mtMSDialog_SeeDetailsCaption=1
+mtMSDialog_SeeDetailsCaption0="To see what data the error report contains,"
+Count mtMSDialog_SeeClickCaption=1
+mtMSDialog_SeeClickCaption0="click here."
+Count mtMSDialog_HowToReproduceCaption=1
+mtMSDialog_HowToReproduceCaption0="What were you doing when the problem happended (optional)?"
+Count mtMSDialog_EmailCaption=1
+mtMSDialog_EmailCaption0="Email address (optional):"
+Count mtMSDialog_SendButtonCaption=1
+mtMSDialog_SendButtonCaption0="%26Send Error Report"
+Count mtMSDialog_NoSendButtonCaption=1
+mtMSDialog_NoSendButtonCaption0="%26Don't Send"
+Count mtLog_AppHeader=1
+mtLog_AppHeader0="Application"
+Count mtLog_AppStartDate=1
+mtLog_AppStartDate0="Start Date"
+Count mtLog_AppName=1
+mtLog_AppName0="Name/Description"
+Count mtLog_AppVersionNumber=1
+mtLog_AppVersionNumber0="Version Number"
+Count mtLog_AppParameters=1
+mtLog_AppParameters0="Parameters"
+Count mtLog_AppCompilationDate=1
+mtLog_AppCompilationDate0="Compilation Date"
+Count mtLog_AppUpTime=1
+mtLog_AppUpTime0="Up Time"
+Count mtLog_ExcHeader=1
+mtLog_ExcHeader0="Exception"
+Count mtLog_ExcDate=1
+mtLog_ExcDate0="Date"
+Count mtLog_ExcAddress=1
+mtLog_ExcAddress0="Address"
+Count mtLog_ExcModuleName=1
+mtLog_ExcModuleName0="Module Name"
+Count mtLog_ExcModuleVersion=1
+mtLog_ExcModuleVersion0="Module Version"
+Count mtLog_ExcType=1
+mtLog_ExcType0="Type"
+Count mtLog_ExcMessage=1
+mtLog_ExcMessage0="Message"
+Count mtLog_ExcID=1
+mtLog_ExcID0="ID"
+Count mtLog_ExcCount=1
+mtLog_ExcCount0="Count"
+Count mtLog_ExcStatus=1
+mtLog_ExcStatus0="Status"
+Count mtLog_ExcNote=1
+mtLog_ExcNote0="Note"
+Count mtLog_UserHeader=1
+mtLog_UserHeader0="User"
+Count mtLog_UserID=1
+mtLog_UserID0="ID"
+Count mtLog_UserName=1
+mtLog_UserName0="Name"
+Count mtLog_UserEmail=1
+mtLog_UserEmail0="Email"
+Count mtLog_UserCompany=1
+mtLog_UserCompany0="Company"
+Count mtLog_UserPrivileges=1
+mtLog_UserPrivileges0="Privileges"
+Count mtLog_ActCtrlsHeader=1
+mtLog_ActCtrlsHeader0="Active Controls"
+Count mtLog_ActCtrlsFormClass=1
+mtLog_ActCtrlsFormClass0="Form Class"
+Count mtLog_ActCtrlsFormText=1
+mtLog_ActCtrlsFormText0="Form Text"
+Count mtLog_ActCtrlsControlClass=1
+mtLog_ActCtrlsControlClass0="Control Class"
+Count mtLog_ActCtrlsControlText=1
+mtLog_ActCtrlsControlText0="Control Text"
+Count mtLog_CmpHeader=1
+mtLog_CmpHeader0="Computer"
+Count mtLog_CmpName=1
+mtLog_CmpName0="Name"
+Count mtLog_CmpTotalMemory=1
+mtLog_CmpTotalMemory0="Total Memory"
+Count mtLog_CmpFreeMemory=1
+mtLog_CmpFreeMemory0="Free Memory"
+Count mtLog_CmpTotalDisk=1
+mtLog_CmpTotalDisk0="Total Disk"
+Count mtLog_CmpFreeDisk=1
+mtLog_CmpFreeDisk0="Free Disk"
+Count mtLog_CmpSystemUpTime=1
+mtLog_CmpSystemUpTime0="System Up Time"
+Count mtLog_CmpProcessor=1
+mtLog_CmpProcessor0="Processor"
+Count mtLog_CmpDisplayMode=1
+mtLog_CmpDisplayMode0="Display Mode"
+Count mtLog_CmpDisplayDPI=1
+mtLog_CmpDisplayDPI0="Display DPI"
+Count mtLog_CmpVideoCard=1
+mtLog_CmpVideoCard0="Video Card"
+Count mtLog_CmpPrinter=1
+mtLog_CmpPrinter0="Printer"
+Count mtLog_OSHeader=1
+mtLog_OSHeader0="Operating System"
+Count mtLog_OSType=1
+mtLog_OSType0="Type"
+Count mtLog_OSBuildN=1
+mtLog_OSBuildN0="Build #"
+Count mtLog_OSUpdate=1
+mtLog_OSUpdate0="Update"
+Count mtLog_OSLanguage=1
+mtLog_OSLanguage0="Language"
+Count mtLog_OSCharset=1
+mtLog_OSCharset0="Charset"
+Count mtLog_NetHeader=1
+mtLog_NetHeader0="Network"
+Count mtLog_NetIP=1
+mtLog_NetIP0="IP Address"
+Count mtLog_NetSubmask=1
+mtLog_NetSubmask0="Submask"
+Count mtLog_NetGateway=1
+mtLog_NetGateway0="Gateway"
+Count mtLog_NetDNS1=1
+mtLog_NetDNS10="DNS 1"
+Count mtLog_NetDNS2=1
+mtLog_NetDNS20="DNS 2"
+Count mtLog_NetDHCP=1
+mtLog_NetDHCP0="DHCP"
+Count mtLog_CustInfoHeader=1
+mtLog_CustInfoHeader0="Custom Information"
+Count mtCallStack_Address=1
+mtCallStack_Address0="Address"
+Count mtCallStack_Name=1
+mtCallStack_Name0="Module"
+Count mtCallStack_Unit=1
+mtCallStack_Unit0="Unit"
+Count mtCallStack_Class=1
+mtCallStack_Class0="Class"
+Count mtCallStack_Procedure=1
+mtCallStack_Procedure0="Procedure/Method"
+Count mtCallStack_Line=1
+mtCallStack_Line0="Line"
+Count mtCallStack_MainThread=1
+mtCallStack_MainThread0="Main"
+Count mtCallStack_ExceptionThread=1
+mtCallStack_ExceptionThread0="Exception Thread"
+Count mtCallStack_RunningThread=1
+mtCallStack_RunningThread0="Running Thread"
+Count mtCallStack_CallingThread=1
+mtCallStack_CallingThread0="Calling Thread"
+Count mtCallStack_ThreadID=1
+mtCallStack_ThreadID0="ID"
+Count mtCallStack_ThreadPriority=1
+mtCallStack_ThreadPriority0="Priority"
+Count mtCallStack_ThreadClass=1
+mtCallStack_ThreadClass0="Class"
+Count mtCallStack_LeakCaption=1
+mtCallStack_LeakCaption0="Memory Leak"
+Count mtCallStack_LeakData=1
+mtCallStack_LeakData0="Data"
+Count mtCallStack_LeakType=1
+mtCallStack_LeakType0="Type"
+Count mtCallStack_LeakSize=1
+mtCallStack_LeakSize0="Total size"
+Count mtCallStack_LeakCount=1
+mtCallStack_LeakCount0="Count"
+Count mtSendDialog_Caption=1
+mtSendDialog_Caption0="Send."
+Count mtSendDialog_Message=1
+mtSendDialog_Message0="Message"
+Count mtSendDialog_Resolving=1
+mtSendDialog_Resolving0="Resolving DNS..."
+Count mtSendDialog_Login=1
+mtSendDialog_Login0="Login..."
+Count mtSendDialog_Connecting=1
+mtSendDialog_Connecting0="Connecting with server..."
+Count mtSendDialog_Connected=1
+mtSendDialog_Connected0="Connected with server."
+Count mtSendDialog_Sending=1
+mtSendDialog_Sending0="Sending message..."
+Count mtSendDialog_Sent=1
+mtSendDialog_Sent0="Message sent."
+Count mtSendDialog_SelectProject=1
+mtSendDialog_SelectProject0="Select project..."
+Count mtSendDialog_Searching=1
+mtSendDialog_Searching0="Searching..."
+Count mtSendDialog_Modifying=1
+mtSendDialog_Modifying0="Modifying..."
+Count mtSendDialog_Disconnecting=1
+mtSendDialog_Disconnecting0="Disconnecting..."
+Count mtSendDialog_Disconnected=1
+mtSendDialog_Disconnected0="Disconnected."
+Count mtReproduceDialog_Caption=1
+mtReproduceDialog_Caption0="Request"
+Count mtReproduceDialog_Request=1
+mtReproduceDialog_Request0="Please describe the steps to reproduce the error:"
+Count mtReproduceDialog_OKButtonCaption=1
+mtReproduceDialog_OKButtonCaption0="%26OK"
+Count mtModules_Handle=1
+mtModules_Handle0="Handle"
+Count mtModules_Name=1
+mtModules_Name0="Name"
+Count mtModules_Description=1
+mtModules_Description0="Description"
+Count mtModules_Version=1
+mtModules_Version0="Version"
+Count mtModules_Size=1
+mtModules_Size0="Size"
+Count mtModules_LastModified=1
+mtModules_LastModified0="Modified"
+Count mtModules_Path=1
+mtModules_Path0="Path"
+Count mtProcesses_ID=1
+mtProcesses_ID0="ID"
+Count mtProcesses_Name=1
+mtProcesses_Name0="Name"
+Count mtProcesses_Description=1
+mtProcesses_Description0="Description"
+Count mtProcesses_Version=1
+mtProcesses_Version0="Version"
+Count mtProcesses_Memory=1
+mtProcesses_Memory0="Memory"
+Count mtProcesses_Priority=1
+mtProcesses_Priority0="Priority"
+Count mtProcesses_Threads=1
+mtProcesses_Threads0="Threads"
+Count mtProcesses_Path=1
+mtProcesses_Path0="Path"
+Count mtCPU_Registers=1
+mtCPU_Registers0="Registers"
+Count mtCPU_Stack=1
+mtCPU_Stack0="Stack"
+Count mtCPU_MemoryDump=1
+mtCPU_MemoryDump0="Memory Dump"
+Count mtSend_SuccessMsg=1
+mtSend_SuccessMsg0="The message was sent successfully."
+Count mtSend_FailureMsg=1
+mtSend_FailureMsg0="Sorry, sending the message didn't work."
+Count mtSend_BugClosedMsg=2
+mtSend_BugClosedMsg0="These BUG is just closed."
+mtSend_BugClosedMsg1="Contact the program support to obtain an update."
+Count mtSend_UnknownErrorMsg=1
+mtSend_UnknownErrorMsg0="Unknown error."
+Count mtSend_InvalidLoginMsg=1
+mtSend_InvalidLoginMsg0="Invalid login request."
+Count mtSend_InvalidSearchMsg=1
+mtSend_InvalidSearchMsg0="Invalid search request."
+Count mtSend_InvalidSelectionMsg=1
+mtSend_InvalidSelectionMsg0="Invalid selection request."
+Count mtSend_InvalidInsertMsg=1
+mtSend_InvalidInsertMsg0="Invalid insert request."
+Count mtSend_InvalidModifyMsg=1
+mtSend_InvalidModifyMsg0="Invalid modify request."
+Count mtFileCrackedMsg=2
+mtFileCrackedMsg0="This file is cracked."
+mtFileCrackedMsg1="The application will be closed."
+Count mtException_LeakMultiFree=1
+mtException_LeakMultiFree0="Multi Free memory leak."
+Count mtException_LeakMemoryOverrun=1
+mtException_LeakMemoryOverrun0="Memory Overrun leak."
+Count mtException_AntiFreeze=1
+mtException_AntiFreeze0="The application seems to be frozen."
+Count mtInvalidEmailMsg=1
+mtInvalidEmailMsg0="Invalid email."
+TextsCollection=English
+EurekaLog Last Line -->
