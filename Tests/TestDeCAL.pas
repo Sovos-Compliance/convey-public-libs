@@ -21,6 +21,7 @@ var
   Sequence: ISequence;
 begin
   Sequence := Factory.CreateContainer(STR_LIST) as ISequence;
+  CheckNotNull(Sequence);
 end;
 
 initialization
