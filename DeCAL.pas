@@ -3563,12 +3563,16 @@ procedure InvertAssociative(Source, Target: IAssociative);
 
 {$IFDEF DUNIT}
 procedure HashLocation(const obj: DObject; var loc: PChar; var Len: Integer);
+function JenkinsHashDObject(const obj: DObject): Integer;
 {$ENDIF}
 
 implementation
 
 uses
-  mwFixedRecSort, CnvStrUtils {$IFDef LEVEL7}, Variants {$EndIf};
+  mwFixedRecSort, CnvStrUtils
+  {$IFDef LEVEL7}, Variants {$EndIf}
+  {$IFDEF UNICODE}, AnsiStrings{$ENDIF}
+  ;
 
 //
 // We need to bring a couple of things forward from the Delphi system unit.
@@ -4265,13 +4269,20 @@ begin
     vtAnsiString: if obj.VAnsiString = nil then
         Result := JenkinsHashInteger(NullStringHash)
       else
-        Result := JenkinsHashString(string(obj.VAnsiString));
+        Result := JenkinsHashString({$IFDEF UNICODE}string{$ENDIF}(AnsiString(obj.VAnsiString)));
       vtCurrency: Result := JenkinsHashBuffer(obj.vcurrency^, SizeOf(Currency), 0);
     vtVariant: raise DException.Create('variant type hash not implemented yet');
     vtWideString: // TODO: Not sure if this is right.  Probably not.
-      Result := JenkinsHashBuffer(WideString(obj.VWideString), Length(WideString(obj.VWideString)), 0);
+      Result := JenkinsHashBuffer(WideString(obj.VWideString), Length(WideString(obj.VWideString)) * SizeOf(WideChar), 0);
     {$IFDEF USELONGWORD}
     vtInt64: Result := JenkinsHashBuffer(obj.vint64^, SizeOf(Int64), 0);
+    {$ENDIF}
+    {$IFDEF UNICODE}
+    vtUnicodeString:
+      if obj.VUnicodeString = nil then
+        Result := JenkinsHashInteger(NullStringHash)
+      else
+        Result := JenkinsHashString(UnicodeString(obj.VUnicodeString));
     {$ENDIF}
     else
       Result := 0;
@@ -4290,9 +4301,9 @@ end;
 
 var
   {$IFDEF USELONGWORD}
-  specialTypes: DeCALBasicTypes = [vtString, vtAnsiString, vtCurrency, vtVariant, vtWideString, vtExtended, vtInt64];
+  specialTypes: DeCALBasicTypes = [{$IFDEF UNICODE}vtUnicodeString,{$ENDIF} vtString, vtAnsiString, vtCurrency, vtVariant, vtWideString, vtExtended, vtInt64];
   {$ELSE}
-  specialTypes: DeCALBasicTypes = [vtString, vtAnsiString, vtCurrency, vtVariant, vtWideString, vtExtended];
+  specialTypes: DeCALBasicTypes = [{$IFDEF UNICODE}vtUnicodeString,{$ENDIF} vtString, vtAnsiString, vtCurrency, vtVariant, vtWideString, vtExtended];
   {$ENDIF}
 
 procedure InitDObject(var obj: DObject);
@@ -4309,7 +4320,7 @@ begin
       vtString: FreeMem(obj.VString);
       vtAnsiString:
         begin
-          Finalize(string(obj.VAnsiString));
+          Finalize(AnsiString(obj.VAnsiString));
         end;
       vtCurrency: FreeMem(obj.VCurrency);
       vtExtended: FreeMem(obj.VExtended);
@@ -4324,6 +4335,12 @@ begin
         end;
       {$IFDEF USELONGWORD}
       vtInt64: FreeMem(obj.vInt64);
+      {$ENDIF}
+      {$IFDEF UNICODE}
+      vtUnicodeString:
+        begin
+          Finalize(UnicodeString(obj.VUnicodeString));
+        end;
       {$ENDIF}
     end;
   end;
@@ -4410,8 +4427,8 @@ begin
         begin
           if Source.VAnsiString <> nil then
           begin
-            string(dest.VAnsiString) := string(Source.VAnsiString);
-            UniqueString(string(dest.VAnsiString));
+            AnsiString(dest.VAnsiString) := AnsiString(Source.VAnsiString);
+            UniqueString(AnsiString(dest.VAnsiString));
           end
           else
             dest.VAnsiString := nil;
@@ -4440,6 +4457,18 @@ begin
         begin
           New(dest.VInt64);
           dest.vInt64^ := Source.vInt64^;
+        end;
+      {$ENDIF}
+      {$IFDEF UNICODE}
+      vtUnicodeString:
+        begin
+          if Source.VUnicodeString <> nil then
+          begin
+            UnicodeString(dest.VUnicodeString) := UnicodeString(Source.VUnicodeString);
+            UniqueString(UnicodeString(dest.VUnicodeString));
+          end
+          else
+            dest.VUnicodeString := nil;
         end;
       {$ENDIF}
     end;
@@ -4524,13 +4553,16 @@ begin
     case obj.vType of
       vtExtended: Result := JenkinsHashBuffer(obj.VExtended^, SizeOf(Extended), 0);
       vtString: Result := JenkinsHashBuffer(obj.VString^[1], Ord(obj.VString^[0]), 0);
-      vtAnsiString: Result := JenkinsHashString(string(obj.VAnsiString));
+      vtAnsiString: Result := JenkinsHashString({$IFDEF UNICODE}string{$ENDIF}(AnsiString(obj.VAnsiString)));
       vtCurrency: Result := JenkinsHashBuffer(obj.VCurrency^, SizeOf(Currency), 0);
       vtVariant: raise DException.Create('Can''t hash variants.');
       vtWideString: // I'm not sure if this will work correctly or not.
         Result := JenkinsHashBuffer(PChar(obj.VWideString)^, Length(WideString(obj.VWideString)) * 2, 0);
       {$IFDEF USELONGWORD}
       vtInt64: Result := JenkinsHashBuffer(obj.vint64^, SizeOf(Int64), 0);
+      {$ENDIF}
+      {$IFDEF UNICODE}
+      vtUnicodeString: Result := JenkinsHashString(UnicodeString(obj.VUnicodeString));
       {$ENDIF}
       else
         raise DException.Create('Hash of unknown type.');
@@ -6551,9 +6583,17 @@ end;
 
 function DContainer.CaselessStringComparator(const obj1, obj2: DObject): Integer;
 begin
+  {$IFDEF UNICODE}
+  if obj1.VType = vtUnicodeString then
+  begin
+    assert(obj1.Vtype = obj2.VType);
+    Result := CompareText(UnicodeString(obj1.VUnicodeString), UnicodeString(obj2.VUnicodeString));
+    Exit;
+  end;
+  {$ENDIF}
   assert(obj1.VType = vtAnsiString);
   assert(obj1.Vtype = obj2.VType);
-  Result := CompareText(string(obj1.VAnsiString), string(obj2.VAnsiString));
+  Result := {$IFDEF UNICODE}AnsiStrings.{$ENDIF}CompareText(AnsiString(obj1.VAnsiString), AnsiString(obj2.VAnsiString));
 end;
 
 {** DObjectComparator intelligently compares the atomic types, automatically. }
@@ -6585,6 +6625,17 @@ function DContainer.DObjectComparator(const obj1, obj2: DObject): Integer;
     else
       Result := 1;
   end;
+  {$IFDEF USELONGWORD}
+  function SignInt64(const value1, value2: Int64): Integer;
+  begin
+    if value1 < value2 then
+      Result := -1
+    else if value1 = value2 then
+      Result := 0
+    else
+      Result := 1;
+  end;
+  {$ENDIF}
   function SignWideString(const value1, value2: WideString): Integer;
   begin
     if value1 < value2 then
@@ -6604,18 +6655,24 @@ begin
     vtBoolean: Result := Ord(obj1.VBoolean) - Ord(obj2.VBoolean);
     vtChar: Result := Ord(obj1.VChar) - Ord(obj2.VChar);
     vtExtended: Result := SignExt(obj1.VExtended^ -obj2.VExtended^);
-    vtString: Result := CompareStr(string(obj1.VString^), string(obj2.VString^));
+    vtString: Result := {$IFDEF UNICODE}AnsiStrings.{$ENDIF}CompareStr(AnsiString(obj1.VString^), AnsiString(obj2.VString^));
     vtPointer: Result := SignInteger(Integer(obj1.VPointer), Integer(obj2.VPointer));
     vtPChar: Result := SignInteger(Integer(obj1.VPChar), Integer(obj2.VPChar));
     vtObject: Result := SignInteger(Integer(obj1.VObject), Integer(obj2.VObject));
     vtClass: Result := SignInteger(Integer(obj1.VClass), Integer(obj2.VClass));
     vtWideChar: Result := Ord(obj1.VWideChar) - Ord(obj2.VWideChar);
     vtPWideChar: Result := SignInteger(Integer(obj1.VPWideChar), Integer(obj2.VPWideChar));
-    vtAnsiString: Result := CompareStr(string(obj1.VAnsiString), string(obj2.VAnsiString));
+    vtAnsiString: Result := {$IFDEF UNICODE}AnsiStrings.{$ENDIF}CompareStr(AnsiString(obj1.VAnsiString), AnsiString(obj2.VAnsiString));
     vtCurrency: Result := SignCurrency(obj1.VCurrency^ -obj2.VCurrency^);
     vtVariant: raise DException.Create('variant type comparisons not implemented yet');
     vtInterface: Result := SignInteger(Integer(obj1.VInterface), Integer(obj2.VInterface));
     vtWideString: Result := SignWideString(WideString(obj1.VWideString), WideString(obj2.VWideString));
+    {$IFDEF USELONGWORD}
+    vtInt64: Result := SignInt64(Integer(obj1.VInt64^), Integer(obj2.VInt64^));
+    {$ENDIF}
+    {$IFDEF UNICODE}
+    vtUnicodeString: Result := SysUtils.CompareStr(UnicodeString(obj1.VUnicodeString), UnicodeString(obj2.VUnicodeString));
+    {$ENDIF}
   end;
 
   {$IFDEF NOTDEFINED}

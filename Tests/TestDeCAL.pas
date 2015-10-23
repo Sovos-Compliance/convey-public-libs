@@ -19,14 +19,25 @@ type
     procedure TearDown; override;
   published
     procedure Test;
+    procedure hashCode;
     procedure HashLocation;
+    procedure JenkinsHashBuffer;
     procedure JenkinsHashString;
+    procedure JenkinsHashDObject;
   end;
 
 implementation
 
 const
   TEST_STRING = 'DeCAL';
+  TEST_STRING_HASH_BUFFER_ANSI = 203247719;
+  TEST_STRING_HASH_BUFFER_UNICODE = 1348658116;
+  TEST_STRING_HASH =
+    {$IFDEF UNICODE}
+    TEST_STRING_HASH_BUFFER_UNICODE
+    {$ELSE}
+    TEST_STRING_HASH_BUFFER_ANSI
+    {$ENDIF};
 
 { TestLogObject }
 
@@ -39,13 +50,25 @@ begin
   {$ENDIF}
 end;
 
+procedure TestDeCALUnit.hashCode;
+var
+  actual: Integer;
+begin
+  actual := DeCAL.hashCode(FAnsiString);
+  CheckEquals(TEST_STRING_HASH, actual, 'ANSI');
+  {$IFDEF UNICODE}
+  actual := DeCAL.hashCode(FUnicodeString);
+  CheckEquals(TEST_STRING_HASH, actual, 'UNICODE');
+  {$ENDIF}
+end;
+
 procedure TestDeCALUnit.HashLocation;
 var
   loc: PChar;
   Len: Integer;
 begin
   DeCAL.HashLocation(FAnsiString, loc, Len);
-  CheckEqualsPtr(FAnsiString.vAnsistring, loc, 'loc');
+  CheckEqualsPtr(FAnsiString.VAnsiString, loc, 'loc');
   CheckEquals(Length(TEST_STRING), Len, 'Len');
   {$IFDEF UNICODE}
   DeCAL.HashLocation(FUnicodeString, loc, Len);
@@ -54,17 +77,39 @@ begin
   {$ENDIF}
 end;
 
+procedure TestDeCALUnit.JenkinsHashBuffer;
+var
+  actual: Integer;
+begin
+  actual := DeCAL.JenkinsHashBuffer(AnsiString(TEST_STRING), Length(TEST_STRING), 0);
+  CheckEquals(TEST_STRING_HASH_BUFFER_ANSI, actual, 'ANSI');
+  {$IFDEF UNICODE}
+  actual := DeCAL.JenkinsHashBuffer(UnicodeString(TEST_STRING), Length(TEST_STRING) * SizeOf(Char), 0);
+  CheckEquals(TEST_STRING_HASH_BUFFER_UNICODE, actual, 'UNICODE');
+  {$ENDIF}
+end;
+
+procedure TestDeCALUnit.JenkinsHashDObject;
+var
+  actual: Integer;
+begin
+  actual := DeCAL.JenkinsHashDObject(FAnsiString);
+  CheckEquals(TEST_STRING_HASH, actual, 'ANSI');
+  {$IFDEF UNICODE}
+  actual := DeCAL.JenkinsHashDObject(FUnicodeString);
+  CheckEquals(TEST_STRING_HASH, actual, 'UNICODE');
+  {$ENDIF}
+end;
+
 procedure TestDeCALUnit.JenkinsHashString;
-const
-  expected = 1348658116;
 var
   actual: Integer;
 begin
   actual := DeCAL.JenkinsHashString(AnsiString(TEST_STRING));
-  CheckEquals(expected, actual);
+  CheckEquals(TEST_STRING_HASH, actual, 'ANSI');
   {$IFDEF UNICODE}
   actual := DeCAL.JenkinsHashString(UnicodeString(TEST_STRING));
-  CheckEquals(expected, actual, 'UNICODE');
+  CheckEquals(TEST_STRING_HASH, actual, 'UNICODE');
   {$ENDIF}
 end;
 
