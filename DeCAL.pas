@@ -4269,7 +4269,7 @@ begin
     vtAnsiString: if obj.VAnsiString = nil then
         Result := JenkinsHashInteger(NullStringHash)
       else
-        Result := JenkinsHashString({$IFDEF UNICODE}string{$ENDIF}(AnsiString(obj.VAnsiString)));
+        Result := JenkinsHashString({$IFDEF UNICODE}UnicodeString{$ENDIF}(AnsiString(obj.VAnsiString)));
       vtCurrency: Result := JenkinsHashBuffer(obj.vcurrency^, SizeOf(Currency), 0);
     vtVariant: raise DException.Create('variant type hash not implemented yet');
     vtWideString: // TODO: Not sure if this is right.  Probably not.
