@@ -3561,6 +3561,10 @@ function _findIn(_start, _end: DIterator; const obj: DObject): DIterator;
 
 procedure InvertAssociative(Source, Target: IAssociative);
 
+{$IFDEF DUNIT}
+procedure HashLocation(const obj: DObject; var loc: PChar; var Len: Integer);
+{$ENDIF}
+
 implementation
 
 uses
@@ -4026,7 +4030,7 @@ end;
 
 procedure JenkinsHashMix(var a, b, c: DeCALDWORD);
 begin
-  a := a - b;  
+  a := a - b;
   a := a - c;  
   a := a xor (c shr 13);
   b := b - c;  
@@ -4154,7 +4158,7 @@ var
 function JenkinsHashString(const s: string): Integer;
 begin
   if Length(s) > 0 then
-    Result := JenkinsHashBuffer(PChar(s)^, Length(s), 0)
+    Result := JenkinsHashBuffer(PChar(s)^, Length(s) * SizeOf(Char), 0)
   else
     Result := JenkinsHashInteger(NullStringHash);
 end;
@@ -4207,7 +4211,7 @@ begin
     vtAnsiString: if obj.vAnsistring <> nil then
       begin
         loc := PChar(obj.vAnsistring);
-        Len := Length(string(obj.vAnsistring));
+        Len := Length(AnsiString(obj.vAnsistring));
       end
       else
         begin
@@ -4232,6 +4236,18 @@ begin
         loc := PChar(obj.vint64);
         Len := SizeOf(Int64);
       end;
+    {$ENDIF}
+    {$IFDEF UNICODE}
+    vtUnicodeString: if obj.VUnicodeString <> nil then
+      begin
+        loc := obj.VUnicodeString;
+        Len := Length(UnicodeString(obj.VUnicodeString));
+      end
+      else
+        begin
+          loc := @NullStringHash;
+          Len := SizeOf(NullStringHash);
+        end;
     {$ENDIF}
   end;
 end;
