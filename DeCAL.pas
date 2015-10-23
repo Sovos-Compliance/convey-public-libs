@@ -4553,7 +4553,7 @@ begin
     case obj.vType of
       vtExtended: Result := JenkinsHashBuffer(obj.VExtended^, SizeOf(Extended), 0);
       vtString: Result := JenkinsHashBuffer(obj.VString^[1], Ord(obj.VString^[0]), 0);
-      vtAnsiString: Result := JenkinsHashString({$IFDEF UNICODE}string{$ENDIF}(AnsiString(obj.VAnsiString)));
+      vtAnsiString: Result := JenkinsHashString({$IFDEF UNICODE}UnicodeString{$ENDIF}(AnsiString(obj.VAnsiString)));
       vtCurrency: Result := JenkinsHashBuffer(obj.VCurrency^, SizeOf(Currency), 0);
       vtVariant: raise DException.Create('Can''t hash variants.');
       vtWideString: // I'm not sure if this will work correctly or not.
