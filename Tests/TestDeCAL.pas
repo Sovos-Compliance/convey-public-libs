@@ -18,7 +18,7 @@ type
     procedure SetUp; override;
     procedure TearDown; override;
   published
-    procedure Test;
+    procedure Factory_CreateContainer;
     procedure hashCode;
     procedure HashLocation;
     procedure JenkinsHashBuffer;
@@ -48,6 +48,14 @@ begin
   {$ELSE}
   CheckEquals(Integer(expected), Integer(actual), msg);
   {$ENDIF}
+end;
+
+procedure TestDeCALUnit.Factory_CreateContainer;
+var
+  Sequence: ISequence;
+begin
+  Sequence := Factory.CreateContainer(STR_LIST) as ISequence;
+  CheckNotNull(Sequence);
 end;
 
 procedure TestDeCALUnit.hashCode;
@@ -131,14 +139,6 @@ begin
   ClearDObject(FUnicodeString);
   {$ENDIF}
   inherited;
-end;
-
-procedure TestDeCALUnit.Test;
-var
-  Sequence: ISequence;
-begin
-  Sequence := Factory.CreateContainer(STR_LIST) as ISequence;
-  CheckNotNull(Sequence);
 end;
 
 initialization
