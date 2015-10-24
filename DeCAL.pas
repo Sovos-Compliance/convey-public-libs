@@ -4807,9 +4807,20 @@ end;
 {** Retrieve the string (AnsiString) at the current iterator position.  Verifies the type
 if assertions are active. }
 function getString(const iterator: DIterator): string;
+var
+  pObj: PDObject;
 begin
-  assert(IIterHandler(iterator.Handler).iget(iterator).VType = vtAnsiString);
-  Result := string(IIterHandler(iterator.Handler).iget(iterator).VAnsiString);
+  pObj := IIterHandler(iterator.Handler).iget(iterator);
+ {$IFDEF UNICODE}
+  assert((pObj.VType = vtUnicodeString) or (pObj.VType = vtAnsiString));
+  if pObj.VType = vtUnicodeString then
+    Result := UnicodeString(pObj.VUnicodeString)
+  else
+    Result := UnicodeString(AnsiString(pObj.VAnsiString));
+ {$ELSE}
+  assert(pObj.VType = vtAnsiString);
+  Result := AnsiString(pObj.VAnsiString);
+ {$ENDIF}
   UniqueString(Result);
 end;
 
@@ -4921,8 +4932,16 @@ end;
 
 function AsString(const obj: DObject): string;
 begin
+  {$IFDEF UNICODE}
+  assert((obj.VType = vtUnicodeString) or (obj.VType = vtAnsiString));
+  if obj.VType = vtUnicodeString then
+    Result := UnicodeString(obj.VUnicodeString)
+  else
+    Result := UnicodeString(AnsiString(obj.VAnsiString));
+  {$ELSE}
   assert(obj.VType = vtAnsiString);
-  Result := string(obj.VAnsiString);
+  Result := AnsiString(obj.VAnsiString);
+  {$ENDIF}
 end;
 
 function asCurrency(const obj: DObject): Currency;
@@ -5037,8 +5056,16 @@ end;
 
 function toString(const obj: DObject): string;
 begin
+  {$IFDEF UNICODE}
+  assert((obj.VType = vtUnicodeString) or (obj.VType = vtAnsiString));
+  if obj.VType = vtUnicodeString then
+    Result := UnicodeString(obj.VUnicodeString)
+  else
+    Result := UnicodeString(AnsiString(obj.VAnsiString));
+  {$ELSE}
   assert(obj.VType = vtAnsiString);
-  Result := string(obj.VAnsiString);
+  Result := AnsiString(obj.VAnsiString);
+  {$ENDIF}
   ClearDObject(PDObject(@obj)^);
 end;
 
@@ -9331,8 +9358,13 @@ end;
 function DTStrings.iget(const iterator: DIterator): PDObject;
 begin
   ClearDObject(FDummy);
+  {$IFDEF UNICODE}
+  FDummy.VType := vtUnicodeString;
+  UnicodeString(FDummy.VUnicodeString) := FStrings[iterator.Position];
+  {$ELSE}
   FDummy.VType := vtAnsiString;
-  string(FDummy.VAnsiString) := FStrings[iterator.Position];
+  AnsiString(FDummy.VAnsiString) := FStrings[iterator.Position];
+  {$ENDIF}
   Result := @FDummy;
 end;
 
@@ -9342,12 +9374,31 @@ begin
 end;
 
 procedure DTStrings.iput(const iterator: DIterator; const obj: DObject);
+const
+  SAssertionError = 'Can only put strings into this container adapter.';
 begin
-  assert(obj.vtype = VtAnsiString, 'Can only put strings into this container adapter.');
+  {$IFDEF UNICODE}
+  assert((obj.vtype = VtUnicodeString) or (obj.vtype = VtAnsiString), SAssertionError);
+  if obj.vtype = VtUnicodeString then
+  begin
+    if iterator.Position = FStrings.Count then
+      FStrings.Append(UnicodeString(obj.VUnicodeString))
+    else
+      FStrings[iterator.Position] := UnicodeString(obj.VUnicodeString);
+  end
+  else begin
+    if iterator.Position = FStrings.Count then
+      FStrings.Append(UnicodeString(AnsiString(obj.VAnsiString)))
+    else
+      FStrings[iterator.Position] := UnicodeString(AnsiString(obj.VAnsiString));
+  end;
+  {$ELSE}
+  assert(obj.vtype = VtAnsiString, SAssertionError);
   if iterator.Position = FStrings.Count then
-    FStrings.Append(string(obj.VAnsiString))
+    FStrings.Append(AnsiString(obj.VAnsiString))
   else
-    FStrings[iterator.Position] := string(obj.VAnsiString);
+    FStrings[iterator.Position] := AnsiString(obj.VAnsiString);
+  {$ENDIF}
 end;
 
 function DTStrings.idistance(const iter1, iter2: DIterator): Integer;
@@ -9384,19 +9435,41 @@ function DTStrings.igetAt(const iterator: DIterator; offset: Integer): PDObject;
 begin
   assert((iterator.Position + offset >= 0) and (iterator.Position + offset < FStrings.Count));
   ClearDObject(FDummy);
+  {$IFDEF UNICODE}
+  FDummy.VType := vtUnicodeString;
+  UnicodeString(FDummy.VUnicodeString) := FStrings[iterator.Position + offset];
+  {$ELSE}
   FDummy.VType := vtAnsiString;
-  string(FDummy.VAnsiString) := FStrings[iterator.Position + offset];
+  AnsiString(FDummy.VAnsiString) := FStrings[iterator.Position + offset];
+  {$ENDIF}
   Result := @FDummy;
 end;
 
 procedure DTStrings.iputAt(const iterator: DIterator; offset: Integer; const obj: DObject);
 begin
   assert((iterator.Position + offset >= 0) and (iterator.Position + offset <= FStrings.Count));
+  {$IFDEF UNICODE}
+  assert((obj.vtype = vtUnicodeString) or (obj.vtype = vtAnsiString));
+  if obj.vtype = vtUnicodeString then
+  begin
+    if iterator.Position + offset = FStrings.Count then
+      FStrings.Append(UnicodeString(obj.VUnicodeString))
+    else
+      FStrings[iterator.Position + offset] := UnicodeString(obj.VUnicodeString);
+  end
+  else begin
+    if iterator.Position + offset = FStrings.Count then
+      FStrings.Append(UnicodeString(AnsiString(obj.VAnsiString)))
+    else
+      FStrings[iterator.Position + offset] := UnicodeString(AnsiString(obj.VAnsiString));
+  end;
+  {$ELSE}
   assert(obj.vtype = vtAnsiString);
   if iterator.Position + offset = FStrings.Count then
-    FStrings.Append(string(obj.VAnsiString))
+    FStrings.Append(AnsiString(obj.VAnsiString))
   else
-    FStrings[iterator.Position + offset] := string(obj.VAnsiString);
+    FStrings[iterator.Position + offset] := AnsiString(obj.VAnsiString);
+  {$ENDIF}
 end;
 
 
@@ -9415,8 +9488,13 @@ end;
 function DTStrings._at(Pos: Integer): PDObject;
 begin
   ClearDObject(FDummy);
+  {$IFDEF UNICODE}
+  FDummy.VType := vtUnicodeString;
+  UnicodeString(FDummy.VUnicodeString) := FStrings[Pos];
+  {$ELSE}
   FDummy.VType := vtAnsiString;
-  string(FDummy.VAnsiString) := FStrings[Pos];
+  AnsiString(FDummy.VAnsiString) := FStrings[Pos];
+  {$ENDIF}
   Result := @FDummy;
 end;
 
@@ -9428,8 +9506,16 @@ end;
 
 procedure DTStrings._add(const obj: DObject);
 begin
+  {$IFDEF UNICODE}
+  assert((obj.vtype = vtUnicodeString) or (obj.vtype = vtAnsiString));
+  if obj.vtype = vtUnicodeString then
+    FStrings.Append(UnicodeString(obj.VUnicodeString))
+  else
+    FStrings.Append(UnicodeString(AnsiString(obj.VAnsiString)));
+  {$ELSE}
   assert(obj.vtype = vtAnsiString);
-  FStrings.Append(string(obj.VAnsiString));
+  FStrings.Append(AnsiString(obj.VAnsiString));
+  {$ENDIF}
 end;
 
 function DTStrings.clone: IContainer;
@@ -9495,28 +9581,54 @@ end;
 function DTStrings.popBack: DObject;
 begin
   assert(FStrings.Count > 0);
+  {$IFDEF UNICODE}
+  Result.Vtype := vtUnicodeString;
+  UnicodeString(Result.VUnicodeString) := FStrings[Fstrings.Count - 1];
+  {$ELSE}
   Result.Vtype := vtAnsiString;
-  string(Result.vansiString) := FStrings[Fstrings.Count - 1];
+  AnsiString(Result.vansiString) := FStrings[Fstrings.Count - 1];
+  {$ENDIF}
   FStrings.Delete(Fstrings.Count - 1);
 end;
 
 function DTStrings.popFront: DObject;
 begin
   assert(FStrings.Count > 0);
+  {$IFDEF UNICODE}
+  Result.vtype := vtUnicodeString;
+  UnicodeString(Result.vansiString) := FStrings[0];
+  {$ELSE}
   Result.vtype := vtAnsiString;
-  string(Result.vansiString) := FStrings[0];
+  AnsiString(Result.vansiString) := FStrings[0];
+  {$ENDIF}
 end;
 
 procedure DTStrings._pushBack(const obj: DObject);
 begin
+  {$IFDEF UNICODE}
+  assert((obj.vtype = vtUnicodeString) or (obj.vtype = vtAnsiString));
+  if obj.vtype = vtUnicodeString then
+    FStrings.Append(UnicodeString(obj.VUnicodeString))
+  else
+    FStrings.Append(UnicodeString(AnsiString(obj.vansiString)));
+  {$ELSE}
   assert(obj.vtype = vtAnsiString);
-  FStrings.Append(string(obj.vansiString));
+  FStrings.Append(AnsiString(obj.vansiString));
+  {$ENDIF}
 end;
 
 procedure DTStrings._pushFront(const obj: DObject);
 begin
+  {$IFDEF UNICODE}
+  assert((obj.vtype = vtUnicodeString) or (obj.vtype = vtAnsiString));
+  if obj.vtype = vtUnicodeString then
+    FStrings.Insert(0, UnicodeString(obj.VUnicodeString))
+  else
+    FStrings.Insert(0, UnicodeString(AnsiString(obj.vansiString)));
+  {$ELSE}
   assert(obj.vtype = vtAnsiString);
-  FStrings.Insert(0, string(obj.vansiString));
+  FStrings.Insert(0, AnsiString(obj.vansiString));
+  {$ENDIF}
 end;
 
 function DTStrings.removeAtIter(iter: DIterator; Count: Integer): DIterator;
@@ -9532,8 +9644,16 @@ end;
 
 procedure DTStrings._putAt(index: Integer; const obj: DObject);
 begin
+  {$IFDEF UNICODE}
+  assert((obj.vtype = vtUnicodeString) or (obj.vtype = vtAnsiString));
+  if obj.vtype = vtUnicodeString then
+    FStrings[index] := UnicodeString(obj.VUnicodeString)
+  else
+    FStrings[index] := UnicodeString(ANsiString(obj.VAnsiString));
+  {$ELSE}
   assert(obj.vtype = vtAnsistring);
-  FStrings[index] := string(obj.VAnsiString);
+  FStrings[index] := AnsiString(obj.VAnsiString);
+  {$ENDIF}
 end;
 
 
@@ -9552,34 +9672,100 @@ end;
 
 procedure DTStrings._insertAtIter(iterator: DIterator; const obj: DObject);
 begin
+  {$IFDEF UNICODE}
+  assert((obj.vtype = vtUnicodeString) or (obj.vtype = vtAnsiString));
+  if obj.vtype = vtUnicodeString then
+    FStrings.Insert(iterator.Position, UnicodeString(obj.VUnicodeString))
+  else
+    FStrings.Insert(iterator.Position, UnicodeString(AnsiString(obj.vansiString)));
+  {$ELSE}
   assert(obj.vtype = vtAnsistring);
-  FStrings.Insert(iterator.Position, string(obj.vansiString));
+  FStrings.Insert(iterator.Position, AnsiString(obj.vansiString));
+  {$ENDIF}
 end;
 
 procedure DTStrings._insertAt(index: Integer; const obj: DObject);
 begin
+  {$IFDEF UNICODE}
+  assert((obj.vtype = vtUnicodeString) or (obj.vtype = vtAnsiString));
+  if obj.vtype = vtUnicodeString then
+    FStrings.Insert(index, UnicodeString(obj.VUnicodeString))
+  else
+    FStrings.Insert(index, UnicodeString(AnsiString(obj.VAnsiString)));
+  {$ELSE}
   assert(obj.vtype = vtAnsistring);
-  FStrings.Insert(index, string(obj.VAnsiString));
+  FStrings.Insert(index, AnsiString(obj.VAnsiString));
+  {$ENDIF}
 end;
 
 procedure DTStrings._insertMultipleAtIter(iterator: DIterator; Count: Integer; const obj: DObject);
+{$IFDEF UNICODE}
+var
+  S: UnicodeString;
+{$ENDIF}
 begin
+  {$IFDEF UNICODE}
+  assert((obj.vtype = vtUnicodeString) or (obj.vtype = vtAnsiString));
+  if obj.vtype = vtUnicodeString then
+  begin
+    S := UnicodeString(obj.VUnicodeString);
+    while Count > 0 do
+    begin
+      FStrings.Insert(iterator.Position, S);
+      Dec(Count);
+    end
+  end
+  else begin
+    S := UnicodeString(AnsiString(obj.VAnsiString));
+    while Count > 0 do
+    begin
+      FStrings.Insert(iterator.Position, S);
+      Dec(Count);
+    end;
+  end;
+  {$ELSE}
   assert(obj.vtype = vtAnsistring);
   while Count > 0 do
   begin
-    FStrings.Insert(iterator.Position, string(obj.VAnsiString));
+    FStrings.Insert(iterator.Position, AnsiString(obj.VAnsiString));
     Dec(Count);
   end;
+  {$ENDIF}
 end;
 
 procedure DTStrings._insertMultipleAt(index: Integer; Count: Integer; const obj: DObject);
+{$IFDEF UNICODE}
+var
+  S: UnicodeString;
+{$ENDIF}
 begin
+  {$IFDEF UNICODE}
+  assert((obj.vtype = vtUnicodeString) or (obj.vtype = vtAnsiString));
+  if obj.vtype = vtUnicodeString then
+  begin
+    S := UnicodeString(obj.VUnicodeString);
+    while Count > 0 do
+    begin
+      FStrings.Insert(index, S);
+      Dec(Count);
+    end
+  end
+  else begin
+    S := UnicodeString(AnsiString(obj.VAnsiString));
+    while Count > 0 do
+    begin
+      FStrings.Insert(index, S);
+      Dec(Count);
+    end;
+  end;
+  {$ELSE}
   assert(obj.vtype = vtAnsistring);
   while Count > 0 do
   begin
-    FStrings.Insert(index, string(obj.VAnsiString));
+    FStrings.Insert(index, AnsiString(obj.VAnsiString));
     Dec(Count);
   end;
+  {$ENDIF}
 end;
 
 procedure DTStrings.insertRangeAtIter(iterator: DIterator; _start, _finish: DIterator);
@@ -9608,15 +9794,33 @@ end;
 procedure DTStrings._remove(const obj: DObject);
 var 
   i: Integer;
+  {$IFDEF UNICODE}
+  S: UNicodeString;
+  {$ENDIF}
 begin
+  {$IFDEF UNICODE}
+  assert((obj.vtype = vtUnicodeString) or (obj.vtype = vtAnsiString));
+  if obj.vtype = vtUnicodeString then
+    S := UnicodeString(obj.VUnicodeString)
+  else
+    S := UnicodeString(AnsiString(obj.VAnsiString));
+  i := FStrings.Count - 1;
+  while i >= 0 do
+  begin
+    if FStrings[i] = S then
+      FStrings.Delete(i);
+    Dec(i);
+  end;
+  {$ELSE}
   assert(obj.vtype = vtAnsiString);
   i := FStrings.Count - 1;
   while i >= 0 do
   begin
-    if FStrings[i] = string(obj.vansiString) then
+    if FStrings[i] = AnsiString(obj.vansiString) then
       FStrings.Delete(i);
     Dec(i);
   end;
+  {$ENDIF}
 end;
 
 procedure DTStrings.removeAt(index: Integer);
@@ -9634,13 +9838,30 @@ begin
 end;
 
 procedure DTStrings._removeWithin(_begin, _end: Integer; const obj: DObject);
+{$IFDEF UNICODE}
+var
+  S: UnicodeString;
+{$ENDIF}
 begin
+  {$IFDEF UNICODE}
+  assert((obj.vtype = vtUnicodeString) or (obj.vtype = vtAnsiString));
+  if obj.vtype = vtUnicodeString then
+    S := UnicodeString(obj.VUnicodeString)
+  else
+    S := UnicodeString(AnsiString(obj.VAnsiString));
+  repeat
+    Dec(_end);
+    if (_end >= _begin) and (Fstrings[_end] = S) then
+      FStrings.Delete(_end);
+  until _end < _begin;
+  {$ELSE}
   assert(obj.vtype = vtAnsiString);
   repeat
     Dec(_end);
-    if (_end >= _begin) and (Fstrings[_end] = string(obj.VAnsiString)) then
+    if (_end >= _begin) and (Fstrings[_end] = AnsiString(obj.VAnsiString)) then
       FStrings.Delete(_end);
   until _end < _begin;
+  {$ENDIF}
 end;
 
 procedure DTStrings.setCapacity(amount: Integer);
@@ -12028,7 +12249,7 @@ begin
     vtPChar: if obj.VPChar = nil then
         Result := 'nil'
       else
-        Result := string(obj.vpchar);
+        Result := {$IFDEF UNICODE}string{$ENDIF}(AnsiString(obj.vpchar));
       vtClass: Result := obj.vclass.ClassName;
     vtPWideChar: if obj.vpwidechar = nil then
         Result := 'nil'
@@ -12047,12 +12268,15 @@ begin
       end;
     vtChar: Result := Char(obj.vchar);
     vtExtended: Result := Format('%g', [obj.vextended^]);
-    vtString: Result := string(obj.vstring^);
+    vtString: Result := {$IFDEF UNICODE}string{$ENDIF}(AnsiString(obj.vstring^));
     vtWideChar: Result := WideCharLenToString(@obj.vwidechar, 1);
-    vtAnsiString: Result := string(obj.vansiString);
+    vtAnsiString: Result := {$IFDEF UNICODE}string{$ENDIF}(AnsiString(obj.vansiString));
     vtCurrency: Result := Format('%m', [obj.vcurrency^]);
     vtVariant: Result := VarToStr(obj.vvariant^);
     vtWideString: Result := WideCharToString(obj.vwideString);
+    {$IFDEF UNICODE}
+    vtUnicodeString: Result := UnicodeString(obj.VUnicodeString);
+    {$ENDIF}
   end;
 end;
 
