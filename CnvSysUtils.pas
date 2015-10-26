@@ -69,7 +69,7 @@ type
 var
   phe  : PHostEnt;
   pptr : PaPInAddr;
-  Buffer : array [0..MAX_PATH] of char;
+  Buffer : array [0..MAX_PATH] of AnsiChar;
   I    : Integer;
   GInitData : TWSADATA;
 begin
@@ -94,7 +94,7 @@ end;
 function GetFullyQualifiedDomainName: AnsiString;
 var
   HostEnt: PHostEnt;
-  szHostname: array[0..MAX_PATH] of char;
+  szHostname: array[0..MAX_PATH] of AnsiChar;
 begin
   Result:= '';
   if GetHostName (szHostname, MAX_PATH) = 0
@@ -157,7 +157,7 @@ begin
 end;
 
 function CheckTaskWindow(Window: HWnd; Data: Longint): WordBool;
-  {$IFDEF WIN32} stdcall {$ELSE} export {$ENDIF};
+  {$IFDEF MSWINDOWS} stdcall {$ELSE} export {$ENDIF};
 begin
   Result := True;
   if PCheckTaskInfo(Data)^.FocusWnd = Window then begin
@@ -169,13 +169,13 @@ end;
 function IsForegroundTask: Boolean;
 var
   Info: TCheckTaskInfo;
-{$IFNDEF WIN32}
+{$IFNDEF MSWINDOWS}
   Proc: TFarProc;
 {$ENDIF}
 begin
   Info.FocusWnd := GetActiveWindow;
   Info.Found := False;
-{$IFDEF WIN32}
+{$IFDEF MSWINDOWS}
   EnumThreadWindows(GetCurrentThreadID, @CheckTaskWindow, Longint(@Info));
 {$ELSE}
   Proc := MakeProcInstance(@CheckTaskWindow, HInstance);
@@ -326,6 +326,8 @@ begin
   end;
 end;
 
+{$IFDEF MSWINDOWS}
+{$IFDEF WIN32}
 function InitMagic : Cardinal;
 var
   tid : cardinal;
@@ -349,6 +351,26 @@ begin
   end;
   Result := AMagic;
 end;
+{$ENDIF}
+{$IFDEF WIN64}
+function InitMagic : Cardinal;
+var
+  tid : cardinal;
+  AMagic : Cardinal;
+asm
+    call GetCurrentThreadId
+    mov tid,eax
+    push gs
+    mov  eax, 18h
+    mov  eax, gs:[eax]
+    sub  eax, 10h
+    xor  eax, [tid]
+    mov  [AMagic], eax
+    pop  gs
+    mov eax, [AMagic]
+end;
+{$ENDIF}
+{$ENDIF}
 
 initialization
   SystemState := TSystemState.Create;
