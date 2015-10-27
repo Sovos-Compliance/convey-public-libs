@@ -513,7 +513,7 @@ begin
       then Result.Write (ZLIB_SIGNATURE [1], Length (ZLIB_SIGNATURE));
     Buf := AllocBuffer (ABufSize);
     try
-      CompStream := TCompressionStream.Create (clMax, Result);
+      CompStream := TCompressionStream.Create ({$IFNDEF VER180}TCompressionLevel.{$ENDIF}clMax, Result);
       try
         ContinueCompressing := True;
         repeat
