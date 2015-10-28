@@ -1,13 +1,18 @@
 unit CnvStrUtils;
 
+{$I DelphiVersion_defines.inc}
+
 interface
 
 uses
-  Classes, Sysutils, Graphics{, uTStringsContainer};
+{$IFDEF DELPHIXE4}
+  Character,
+{$ENDIF}
+  Classes, Sysutils, Graphics;
 
 type
   TStringArray = array of string;
-  TCharSet = set of Char;
+  TCharSet = set of AnsiChar;
 
   TAdvStringList = class (TStringList)
   private
@@ -24,13 +29,16 @@ type
     property QuoteChar: Char read FQuoteChar write FQuoteChar;
   end;
 
+function CharInArray(const aChar: Char; const aCharArray: array of Char): Boolean;
 function RemoveEscapeChars (const s : string; EscChar : char) : string;
 function TextToBool (const Value : string) : boolean;
 function BoolToText (Value : boolean) : char;
 function EliminateWhiteSpaces (const s : string) : string;
-function EliminateChars (const s : string; const chars : TCharSet) : string;
-procedure SanitizeString(var s : string); // Removes non ascii chars but will keep Word compatible control chars (9, 11, 12, 13, 14, 30, 31 and 160)
-function SanitizeJSonValue(const s: string): string;
+function EliminateChars(const s: AnsiString; const AnsiEliminatedChars: TCharSet): AnsiString; overload;
+{$IFDEF DELPHIXE4}
+function EliminateChars(const s : string; const EliminatedChars : array of Char): string; overload;
+{$ENDIF}
+procedure SanitizeString(var s : string); // Removes control chars, but will keep Word compatible control chars (9, 11, 12, 13, 14, 30, 31 and 160)
 function LastPartOfName (const s : String) : string;
 function FirstPartOfName(const s : string): string;
 procedure MixTStrings(Source, Dest : TStrings; FromIndex : Integer = 0);
@@ -51,7 +59,7 @@ function ConvertToMixedCaseString(const s : string): string;
 function CnvWrapText(const Line, BreakStr: string; MaxWidth: Integer; Canvas :
     TCanvas): string;
 function CnvSimpleWrapText(const Line: string; MaxWidth: Integer): string;
-
+	
 function HexToInt(Value : string) : integer;
 function StringToHex(const s : string): string;
 function HexToString(const s : string): string;
@@ -66,7 +74,10 @@ function RemoveSymbolsAndNumbers(const s : string): string;
 
 { String to type conversion routing with cleaning of data capabilities }
 
-function CleanStr(const s: string; const ValidChars: TCharSet): string;
+function CleanStr(const s: AnsiString; const AnsiValidChars: TCharSet): AnsiString; overload;
+{$IFDEF DELPHIXE4}
+function CleanStr(const s: string; const ValidChars: array of Char): string; overload;
+{$ENDIF}
 
 function CleanStrToInt(const s: string; var IsNull: Boolean): integer;
 function CleanStrToCurr(const s: string; var IsNull: Boolean): currency;
@@ -96,6 +107,14 @@ const
 var
   RegMatcher : TmkreExpr;
 
+function CharInArray(const aChar: Char; const aCharArray: array of Char): Boolean;
+var I: Integer;
+begin
+  Result := false;
+  for I := Low(aCharArray) to High(aCharArray) do
+    if aChar = aCharArray[I] then Exit(True);
+end;
+
 function RemoveEscapeChars;
 var
   j : Integer;
@@ -124,15 +143,28 @@ begin
   Result := _BoolToText [Value];
 end;
 
-function EliminateChars (const s : string; const chars : TCharSet) : string;
+function EliminateChars(const s: AnsiString; const AnsiEliminatedChars: TCharSet): AnsiString;
 var
   i : Integer;
 begin
   Result := '';
   for i := 1 to Length (s) do
-    if not (s [i] in chars)
+    if not (s [i] in AnsiEliminatedChars)
       then Result := Result + s [i];
 end;
+
+{$IFDEF DELPHI2009}
+function EliminateChars(const s : string; const EliminatedChars : array of Char): string;
+var
+  i : Integer;
+begin
+  Result := '';
+  for i := 1 to Length (s) do
+    if not s[i].IsInArray(EliminatedChars)
+      then Result := Result + s [i];
+end;
+{$ENDIF}
+
 
 function EliminateWhiteSpaces (const s : string) : string;
 begin
@@ -245,7 +277,7 @@ begin
     Result := Result + Items [i] + Items2 [i];
 end;
 
-function IndexOf(const Items : array of string; const Item : String;
+function IndexOf(const Items : array of string; const Item : String; 
     CaseSensitive : boolean = false): Integer;
 var
   i : Integer;
@@ -320,7 +352,7 @@ begin
   while i <= Length (s)  do
     begin
       Move (s [i], Hex [1], 2);
-      c := char (HexToInt (string(Hex)));
+      c := char (HexToInt (Hex));
       Move (c, Result [(i + 1) div 2], 1);
       Inc (i, 2);
     end;
@@ -369,7 +401,11 @@ begin
   Alpha := 0;
   Numeric := 0;
   for i := 0 to Length (s) do
+{$IFDEF DELPHIXE4}
+    if s [i].IsDigit
+{$ELSE}
     if s [i] in ['0'..'9']
+{$ENDIF}
       then Inc (Numeric)
       else Inc (Alpha);
 end;
@@ -405,7 +441,7 @@ begin
     else Result := s;
 end;
 
-function SplitNameAndValue(const s : string; var AName, AValue : string):
+function SplitNameAndValue(const s : string; var AName, AValue : string): 
     Boolean;
 var
   p : Integer;
@@ -459,9 +495,9 @@ begin
       Inc(UnitType);
     end;
   if i <= 0 then
-    Result := IntToStr(b) + ' ' + string(Units[UnitType-1])
+    Result := IntToStr(b) + ' ' + Units[UnitType-1]
   else
-    Result := FloatToStrF(i, ffNumber, 15, 2) + ' ' + string(Units[UnitType]);
+    Result := FloatToStrF(i, ffNumber, 15, 2) + ' ' + Units[UnitType]
 end;
 
 function RemoveSymbolsAndNumbers(const s : string): string;
@@ -470,7 +506,11 @@ var
 begin
   Result := '';
   for i := 1 to Length (s) do
+{$IFDEF DELPHIXE4}
+    if s [i].IsLetter
+{$ELSE}
     if s [i] in ['a'..'z', 'A'..'Z']
+{$ENDIF}
       then Result := Result + s [i];
 end;
 
@@ -484,28 +524,28 @@ begin
   system.Delete (Result, Length (Result), 1);
 end;
 
-function CnvWrapText(const Line, BreakStr: string; MaxWidth: Integer; Canvas :
-    TCanvas): string;
+function CnvWrapText(const Line, BreakStr: string; MaxWidth: Integer; Canvas: TCanvas): string;
 const
-  QuoteChars = ['''', '"'];
+  QuoteChars: array[0..1] of Char = ('''', '"');
 var
   Pos: Integer;
   LinePos, LineLen: Integer;
   BreakLen, OldBreakPos, BreakPos: Integer;
   QuoteChar, CurChar: Char;
   ExistingBreak: Boolean;
-  BreakChars : set of char;
+  BreakChars, NewLineBreakChars : array of Char;
   procedure CheckBreak;
   begin
-    if not (QuoteChar in QuoteChars) and (ExistingBreak or
+    if not CharInArray(QuoteChar, QuoteChars) and (ExistingBreak or
         ((Canvas.TextWidth (system.copy (Line, LinePos, BreakPos - LinePos + 1)) >= MaxWidth) and
          (BreakPos > LinePos))) then
       begin
         BreakPos := OldBreakPos;
         pos := BreakPos;
         Result := Result + Copy(Line, LinePos, BreakPos - LinePos + 1);
-        if not (CurChar in QuoteChars) then
-          while (Pos <= LineLen) and (Line[Pos] in BreakChars + [#13, #10]) do Inc(Pos);
+        if not CharInArray(CurChar, QuoteChars) then
+          while (Pos <= LineLen) and CharInArray(Line[Pos], NewLineBreakChars) do
+            Inc(Pos);
         if not ExistingBreak and (Pos < LineLen) then
           Result := Result + BreakStr;
         Inc(BreakPos);
@@ -515,6 +555,7 @@ var
   end;
 begin
   BreakChars := ['.', ' ',#9,'-'];
+  NewLineBreakChars := BreakChars + [#13, #10];
   Pos := 1;
   LinePos := 1;
   BreakPos := 0;
@@ -527,7 +568,7 @@ begin
   while Pos <= LineLen do
   begin
     CurChar := Line[Pos];
-    if CurChar in LeadBytes then
+    if AnsiChar(CurChar) in LeadBytes then
     begin
       Inc(Pos);
     end else
@@ -544,7 +585,7 @@ begin
           end;
         end
       end
-      else if CurChar in BreakChars then
+      else if CharInArray(CurChar, BreakChars) then
       begin
         if QuoteChar = ' '
           then
@@ -553,7 +594,7 @@ begin
             BreakPos := Pos;
           end;
       end
-      else if CurChar in QuoteChars then
+      else if CharInArray(CurChar, QuoteChars) then
         if CurChar = QuoteChar then
           QuoteChar := ' '
         else if QuoteChar = ' ' then
@@ -572,14 +613,30 @@ begin
   Result:= WrapText(Line,MaxWidth);
 end;
 
-function CleanStr(const s: string; const ValidChars: TCharSet): string;
+function CleanStr(const s: AnsiString; const AnsiValidChars: TCharSet): AnsiString;
 var
   i, j : integer;
 begin
   SetLength (Result, length (s));
   j := 0;
   for i := 1 to length (s) do
-    if s [i] in ValidChars
+    if s [i] in AnsiValidChars
+      then
+      begin
+        inc (j);
+        Result [j] := s [i];
+      end;
+  SetLength (Result, j);
+end;
+
+function CleanStr(const s: string; const ValidChars: array of Char): string;
+var
+  i, j : integer;
+begin
+  SetLength (Result, length (s));
+  j := 0;
+  for i := 1 to length (s) do
+    if s [i].IsInArray(ValidChars)
       then
       begin
         inc (j);
@@ -740,7 +797,7 @@ begin
         begin
           S := Get(I);
           P := PChar(S);
-          while not (P^ in [#0, FQuoteChar, FTokenSeparator]) do
+          while not CharInArray(P^, [#0, FQuoteChar, FTokenSeparator]) do
             P := CharNext(P);
           if P^ <> #0
             then S := AnsiQuotedStr(S, FQuoteChar);
@@ -751,17 +808,14 @@ begin
 end;
 
 procedure TAdvStringList.SetTokenizedText(const Value: string);
-type
-  PCharArray = ^TCharArray;
-  TCharArray = array [0..MaxInt - 1] of AnsiChar;
 var
   P : PChar;
   S: string;
-  Buf : PCharArray;
+  Buf : PChar;
   i : integer;
 begin
   if length (Value) > 0
-    then GetMem (Buf, length (Value))
+    then GetMem (Buf, length (Value) * SizeOf(Char))
     else Buf := nil;
   try
     BeginUpdate;
@@ -780,7 +834,7 @@ begin
                   if not (P^ in FIgnoreChars)
                     then
                     begin
-                      Buf [i] := AnsiChar(P^);
+                      Buf [i] := Char(P^);
                       inc (i);
                     end;
                   P := CharNext(P);
@@ -814,7 +868,7 @@ var
   i : integer;
 begin
   for i := 1 to length(s) do
-    if s[i] in [#0..#8, #15..#29] then
+    if Ord(s[i]) in [0..8, 15..29] then
       s[i] := ' ';
 end;
 
@@ -844,18 +898,6 @@ begin
                 system.Copy(AStr, length(AStr) - MaxLen div 2 + 1, length(AStr));
     end
     else Result := AStr;
-end;
-
-function SanitizeJSonValue(const s: string): string;
-const
-  JSonSpecialChars : array [0..3] of string = ('\', '"', #10, #13);
-  JSonSpecialCharsReplacement : array [0..3] of string = ('\\', '\"', '\n', '\r');
-var
-  i : integer;
-begin
-  result := s;
-  for i := Low(JSonSpecialChars) to High(JSonSpecialChars) do
-    result := StringReplace(result, JSonSpecialChars[i], JSonSpecialCharsReplacement[i], [rfReplaceAll]);
 end;
 
 var

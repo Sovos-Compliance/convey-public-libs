@@ -2,8 +2,7 @@ unit uMultiReaderWriteSynchronizerFixed;
 
 interface
 
-{$IFNDEF VER180}
-{$IF CompilerVersion < 11.0} // Delphi 2007
+{$IF CompilerVersion < 18.0}  // Unit used only for versions prior to Delphi 2006/2007
 
 uses
   SysUtils, Windows;
@@ -217,12 +216,10 @@ type
   end;
 
 {$IFEND}
-{$ENDIF}
 
 implementation
 
-{$IFNDEF VER180}
-{$IF CompilerVersion < 11.0} { Delphi 2007 }
+{$IF CompilerVersion < 18.0}
 
 { TThreadLocalCounter2
   This implementation will replace TThreadLocalCounter in the next major release,
@@ -617,8 +614,6 @@ begin
   WaitForSingleObject(FWriteSignal, FWaitRecycle);
 end;
 
-
 {$IFEND}
-{$ENDIF}
 
 end.
