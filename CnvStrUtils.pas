@@ -112,7 +112,11 @@ var I: Integer;
 begin
   Result := false;
   for I := Low(aCharArray) to High(aCharArray) do
-    if aChar = aCharArray[I] then Exit(True);
+    if aChar = aCharArray[I] then
+    begin
+      Result := true;
+      Break;
+    end;
 end;
 
 function RemoveEscapeChars;
@@ -524,6 +528,7 @@ begin
   system.Delete (Result, Length (Result), 1);
 end;
 
+{$IFDEF DELPHIXE4}
 function CnvWrapText(const Line, BreakStr: string; MaxWidth: Integer; Canvas: TCanvas): string;
 const
   QuoteChars: array[0..1] of Char = ('''', '"');
@@ -608,6 +613,90 @@ begin
   Result := Result + Copy(Line, LinePos, MaxInt);
 end;
 
+{$ELSE}
+function CnvWrapText(const Line, BreakStr: string; MaxWidth: Integer; Canvas : TCanvas): string;
+const
+  QuoteChars = ['''', '"'];
+var
+  Pos: Integer;
+  LinePos, LineLen: Integer;
+  BreakLen, OldBreakPos, BreakPos: Integer;
+  QuoteChar, CurChar: Char;
+  ExistingBreak: Boolean;
+  BreakChars : set of char;
+  procedure CheckBreak;
+  begin
+    if not (QuoteChar in QuoteChars) and (ExistingBreak or
+        ((Canvas.TextWidth (system.copy (Line, LinePos, BreakPos - LinePos + 1)) >= MaxWidth) and
+         (BreakPos > LinePos))) then
+      begin
+        BreakPos := OldBreakPos;
+        pos := BreakPos;
+        Result := Result + Copy(Line, LinePos, BreakPos - LinePos + 1);
+        if not (CurChar in QuoteChars) then
+          while (Pos <= LineLen) and (Line[Pos] in BreakChars + [#13, #10]) do Inc(Pos);
+        if not ExistingBreak and (Pos < LineLen) then
+          Result := Result + BreakStr;
+        Inc(BreakPos);
+        LinePos := BreakPos;
+        ExistingBreak := False;
+      end;
+  end;
+begin
+  BreakChars := ['.', ' ',#9,'-'];
+  Pos := 1;
+  LinePos := 1;
+  BreakPos := 0;
+  OldBreakPos := 0;
+  QuoteChar := ' ';
+  ExistingBreak := False;
+  LineLen := Length(Line);
+  BreakLen := Length(BreakStr);
+  Result := '';
+  while Pos <= LineLen do
+  begin
+    CurChar := Line[Pos];
+    if CurChar in LeadBytes then
+    begin
+      Inc(Pos);
+    end else
+      if CurChar = BreakStr[1] then
+      begin
+        if QuoteChar = ' ' then
+        begin
+          ExistingBreak := CompareText(BreakStr, Copy(Line, Pos, BreakLen)) = 0;
+          if ExistingBreak then
+          begin
+            Inc(Pos, BreakLen-1);
+            OldBreakPos := BreakPos;
+            BreakPos := Pos;
+          end;
+        end
+      end
+      else if CurChar in BreakChars then
+      begin
+        if QuoteChar = ' '
+          then
+          begin
+            OldBreakPos := BreakPos;
+            BreakPos := Pos;
+          end;
+      end
+      else if CurChar in QuoteChars then
+        if CurChar = QuoteChar then
+          QuoteChar := ' '
+        else if QuoteChar = ' ' then
+          QuoteChar := CurChar;
+    Inc(Pos);
+    CheckBreak;
+  end;
+  OldBreakPos := BreakPos;
+  BreakPos := Pos;
+  CheckBreak;
+  Result := Result + Copy(Line, LinePos, MaxInt);
+end;
+{$ENDIF !DELPHIXE4}
+
 function CnvSimpleWrapText(const Line: string; MaxWidth: Integer): string;
 begin
   Result:= WrapText(Line,MaxWidth);
@@ -629,6 +718,7 @@ begin
   SetLength (Result, j);
 end;
 
+{$IFDEF DELPHIXE4}
 function CleanStr(const s: string; const ValidChars: array of Char): string;
 var
   i, j : integer;
@@ -644,6 +734,7 @@ begin
       end;
   SetLength (Result, j);
 end;
+{$ENDIF}
 
 function CleanStrToInt(const s: string; var IsNull: Boolean): integer;
 var
