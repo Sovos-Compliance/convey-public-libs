@@ -19,7 +19,8 @@ uses
   TestFramework,
   GUITestRunner,
   TextTestRunner,
-  TestDeCAL in 'TestDeCAL.pas';
+  TestDeCAL in 'TestDeCAL.pas',
+  TestCnvStrUtils in 'TestCnvStrUtils.pas';
 
 {$R *.RES}
 
