@@ -7,7 +7,11 @@ uses
 
 type
   TStringArray = array of string;
+  {$IFDEF VER180}
   TCharSet = set of Char;
+  {$ELSE}
+  TCharSet = TSysCharSet;
+  {$ENDIF}
 
   TAdvStringList = class (TStringList)
   private
@@ -96,6 +100,13 @@ const
 var
   RegMatcher : TmkreExpr;
 
+{$IFDEF VER180}
+function CharInSet(const C: Char; const CharSet: TCharSet): Boolean; inline;
+begin
+  Result := C in CharSet;
+end;
+{$ENDIF}
+
 function RemoveEscapeChars;
 var
   j : Integer;
@@ -130,7 +141,7 @@ var
 begin
   Result := '';
   for i := 1 to Length (s) do
-    if not (s [i] in chars)
+    if not CharInSet(s [i], chars)
       then Result := Result + s [i];
 end;
 
@@ -297,14 +308,16 @@ end;
 
 function StringToHex(const s : string): string;
 var
-  j : Integer;
+  j, k : Integer;
   Hex : string [2];
 begin
   SetLength (Result, Length (s) * 2);
   for j := 1 to Length (s) do
     begin
       Hex := ShortString(IntToHex (Ord (s [j]), 2));
-      Move (Hex [1], Result [(j - 1) * 2 + 1], 2);
+      k := (j - 1) * 2 + 1;
+      Result [k] := Char(Hex[1]);
+      Result [k + 1] := Char(Hex[2]);
     end;
 end;
 
@@ -312,16 +325,15 @@ function HexToString(const s : string): string;
 var
   i : Integer;
   c : Char;
-  Hex : string [2];
+  Hex : array[0..1] of Char;
 begin
-  SetLength (Hex, 2);
   SetLength (Result, Length (s) div 2);
   i := 1;
   while i <= Length (s)  do
     begin
-      Move (s [i], Hex [1], 2);
-      c := char (HexToInt (string(Hex)));
-      Move (c, Result [(i + 1) div 2], 1);
+      Move (PChar(@s [i])^, PChar(@Hex [0])^, 2 * SizeOf(Char));
+      c := Chr (HexToInt (Hex));
+      Result [(i + 1) div 2] := c;
       Inc (i, 2);
     end;
 end;
@@ -369,7 +381,7 @@ begin
   Alpha := 0;
   Numeric := 0;
   for i := 0 to Length (s) do
-    if s [i] in ['0'..'9']
+    if CharInSet(s [i], ['0'..'9'])
       then Inc (Numeric)
       else Inc (Alpha);
 end;
@@ -470,7 +482,7 @@ var
 begin
   Result := '';
   for i := 1 to Length (s) do
-    if s [i] in ['a'..'z', 'A'..'Z']
+    if CharInSet(s [i], ['a'..'z', 'A'..'Z'])
       then Result := Result + s [i];
 end;
 
@@ -494,18 +506,18 @@ var
   BreakLen, OldBreakPos, BreakPos: Integer;
   QuoteChar, CurChar: Char;
   ExistingBreak: Boolean;
-  BreakChars : set of char;
+  BreakChars : {$IFDEF VER180}set of char{$ELSE}TSysCharSet{$ENDIF};
   procedure CheckBreak;
   begin
-    if not (QuoteChar in QuoteChars) and (ExistingBreak or
+    if not CharInSet(QuoteChar, QuoteChars) and (ExistingBreak or
         ((Canvas.TextWidth (system.copy (Line, LinePos, BreakPos - LinePos + 1)) >= MaxWidth) and
          (BreakPos > LinePos))) then
       begin
         BreakPos := OldBreakPos;
         pos := BreakPos;
         Result := Result + Copy(Line, LinePos, BreakPos - LinePos + 1);
-        if not (CurChar in QuoteChars) then
-          while (Pos <= LineLen) and (Line[Pos] in BreakChars + [#13, #10]) do Inc(Pos);
+        if not CharInSet(CurChar, QuoteChars) then
+          while (Pos <= LineLen) and CharInSet(Line[Pos], BreakChars + [#13, #10]) do Inc(Pos);
         if not ExistingBreak and (Pos < LineLen) then
           Result := Result + BreakStr;
         Inc(BreakPos);
@@ -527,7 +539,7 @@ begin
   while Pos <= LineLen do
   begin
     CurChar := Line[Pos];
-    if CurChar in LeadBytes then
+    if CharInSet(CurChar, LeadBytes) then
     begin
       Inc(Pos);
     end else
@@ -544,7 +556,7 @@ begin
           end;
         end
       end
-      else if CurChar in BreakChars then
+      else if CharInSet(CurChar, BreakChars) then
       begin
         if QuoteChar = ' '
           then
@@ -553,7 +565,7 @@ begin
             BreakPos := Pos;
           end;
       end
-      else if CurChar in QuoteChars then
+      else if CharInSet(CurChar, QuoteChars) then
         if CurChar = QuoteChar then
           QuoteChar := ' '
         else if QuoteChar = ' ' then
@@ -579,7 +591,7 @@ begin
   SetLength (Result, length (s));
   j := 0;
   for i := 1 to length (s) do
-    if s [i] in ValidChars
+    if CharInSet(s [i], ValidChars)
       then
       begin
         inc (j);
@@ -740,7 +752,7 @@ begin
         begin
           S := Get(I);
           P := PChar(S);
-          while not (P^ in [#0, FQuoteChar, FTokenSeparator]) do
+          while not CharInSet(P^, [#0, FQuoteChar, FTokenSeparator]) do
             P := CharNext(P);
           if P^ <> #0
             then S := AnsiQuotedStr(S, FQuoteChar);
@@ -751,17 +763,13 @@ begin
 end;
 
 procedure TAdvStringList.SetTokenizedText(const Value: string);
-type
-  PCharArray = ^TCharArray;
-  TCharArray = array [0..MaxInt - 1] of AnsiChar;
 var
-  P : PChar;
+  P, Buf : PChar;
   S: string;
-  Buf : PCharArray;
   i : integer;
 begin
   if length (Value) > 0
-    then GetMem (Buf, length (Value))
+    then GetMem (Buf, length (Value) * SizeOf(Char))
     else Buf := nil;
   try
     BeginUpdate;
@@ -777,10 +785,10 @@ begin
               i := 0;
               while (P^ <> #0) and (P^ <> FTokenSeparator) do
                 begin
-                  if not (P^ in FIgnoreChars)
+                  if not CharInSet(P^, FIgnoreChars)
                     then
                     begin
-                      Buf [i] := AnsiChar(P^);
+                      Buf [i] := P^;
                       inc (i);
                     end;
                   P := CharNext(P);
@@ -788,7 +796,7 @@ begin
               SetString(S, PChar (Buf), i);
             end;
           Add(S);
-          while (P^ = FTokenSeparator) or (P^ in FIgnoreChars) do
+          while (P^ = FTokenSeparator) or CharInSet(P^, FIgnoreChars) do
             P := CharNext(P);
         end;
     finally
@@ -814,7 +822,7 @@ var
   i : integer;
 begin
   for i := 1 to length(s) do
-    if s[i] in [#0..#8, #15..#29] then
+    if CharInSet(s[i], [#0..#8, #15..#29]) then
       s[i] := ' ';
 end;
 

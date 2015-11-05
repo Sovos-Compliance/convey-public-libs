@@ -71,7 +71,7 @@ end;
 
 procedure TestCnvStrUtilsUnit._AddStrings2;
 begin
-  CheckEquals('abefcdabef', AddStrings(['ab', 'cd'], ['ef']));
+  CheckEquals('abefcdgh', AddStrings(['ab', 'cd'], ['ef', 'gh']));
 end;
 
 procedure TestCnvStrUtilsUnit._BoolToText;
