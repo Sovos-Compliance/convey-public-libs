@@ -344,6 +344,10 @@ const
  * failure point, or a counter. }
 
 type
+  {$IFDEF VER180}
+  NativeInt = Integer;
+  {$ENDIF}
+
   Pitem_t = ^Titem_t;
   Titem_t = record
     reg_num: integer;
@@ -1626,7 +1630,7 @@ begin
   Assert((pos <= length(Fstr)), 'Position not valid');
   text := @Fstr[pos];
   textstart := @Fstr[1];
-  textend   := PChar(integer(@Fstr[1]) + Length(Fstr)); //decrease 1 for null char
+  textend   := PChar(NativeInt(@Fstr[1]) + Length(Fstr) * SizeOf(Char)); //decrease 1 for null char
   code := @regexp_t.buffer[1];
   if regexp_t.translate <> '' then
   begin
@@ -1922,7 +1926,7 @@ continue_matching:
           inc(code, 2);
           inc(code, a);
           if (code < PChar(regexp_t.buffer)) or
-             (integer(@regexp_t.buffer[1]) + Length(regexp_t.buffer) < integer(code)) then
+             (NativeInt(@regexp_t.buffer[1]) + Length(regexp_t.buffer) * SizeOf(Char) < NativeInt(code)) then
           begin
             Free_State(state);
             Result := -2;
@@ -1939,7 +1943,7 @@ continue_matching:
           b := short(ord(code[1]) + ord(code[2]) * 256);
           failuredest := code + b + 3;
           if (failuredest < PChar(regexp_t.buffer)) or
-             (integer(@regexp_t.buffer[1]) + Length(regexp_t.buffer) < integer(failuredest)) then
+             (NativeInt(@regexp_t.buffer[1]) + Length(regexp_t.buffer) * SizeOf(Char) < NativeInt(failuredest)) then
           begin
             Free_State(state);
             Result := -2;
@@ -1975,7 +1979,7 @@ continue_matching:
           //Push_Failure
           inc(code, a);
           if (code < PChar(regexp_t.buffer)) or
-             (integer(@regexp_t.buffer[1]) + Length(regexp_t.buffer) < integer(code)) then
+             (NativeInt(@regexp_t.buffer[1]) + Length(regexp_t.buffer) * SizeOf(Char) < NativeInt(code)) then
           begin
             Free_State(state);
             Result := -2;
@@ -1989,7 +1993,7 @@ continue_matching:
           a := short(ord(code[0]) + ord(code[1]) * 256);
           inc(code, 2);
           if ((code + a) < PChar(regexp_t.buffer)) or
-             (integer(@regexp_t.buffer[1]) + Length(regexp_t.buffer) < integer(code + a)) then
+             (NativeInt(@regexp_t.buffer[1]) + Length(regexp_t.buffer) * SizeOf(Char) < NativeInt(code) + a * SizeOf(Char)) then
           begin
             Free_State(state);
             Result := -2;
@@ -2032,7 +2036,7 @@ continue_matching:
           inc(code, 2);
           pinst := code + a;
           if (pinst < PChar(regexp_t.buffer)) or
-             (integer(@regexp_t.buffer[1]) + Length(regexp_t.buffer) < integer(pinst)) then
+             (NativeInt(@regexp_t.buffer[1]) + Length(regexp_t.buffer) * SizeOf(Char) < NativeInt(pinst)) then
           begin
             Free_State(state);
             Result := -2;
@@ -2404,7 +2408,7 @@ begin
       if dir = 1 then
       begin    //searching forwards
         text := @Fstr[pos];
-        partend := PChar(integer(@Fstr[1]) + Length(Fstr) - 1);
+        partend := PChar(NativeInt(@Fstr[1]) + (Length(Fstr) - 1) * SizeOf(Char));
         partstart := text;
         if translate <> nil then
         begin
