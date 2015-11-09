@@ -478,7 +478,11 @@ begin
     then FOnStartMatch(Self);
   FThreadedMatch := TThreadedMatch.Create(Self);
   FThreadedMatch.OnTerminate := OnMatchTerminate;
+  {$IFDEF VER180}
   FThreadedMatch.Resume;
+  {$ELSE}
+  FThreadedMatch.Start;
+  {$ENDIF}
 end;
 
 //CE_Desc_Begin(TmkreExpr.DoThreadedSearchWithRange)
@@ -497,7 +501,11 @@ begin
   if Assigned(FOnStartSearch) then FOnStartSearch(Self);
   FThreadedSearch := TThreadedSearch.Create(Self);
   FThreadedSearch.OnTerminate := OnSearchTerminate;
+  {$IFDEF VER180}
   FThreadedSearch.Resume;
+  {$ELSE}
+  FThreadedSearch.Start;
+  {$ENDIF}
 end;
 
 //CE_Desc_Begin(TmkreExpr.DoSearch)
