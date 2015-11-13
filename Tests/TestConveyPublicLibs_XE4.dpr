@@ -17,7 +17,8 @@ program TestConveyPublicLibs_XE4;
 uses
   DUnitTestRunner,
   TestDeCAL in 'TestDeCAL.pas',
-  TestCnvStrUtils in 'TestCnvStrUtils.pas';
+  TestCnvStrUtils in 'TestCnvStrUtils.pas',
+  TestkbmMemTable in 'TestkbmMemTable.pas';
 
 {$R *.RES}
 

@@ -122,7 +122,12 @@ type
      Ocf,Onf:Byte;
      Osdf,Ocs:string;
 
-     buf,bufptr:PChar;
+     {$IFDEF UNICODE}
+     buf:TCharArray;
+     {$ELSE}
+     buf:PChar;
+     bufptr:PChar;
+     {$ENDIF}
      remaining_in_buf:integer;
      Line,Word:string;
      lptr,elptr:PChar;
@@ -142,8 +147,16 @@ type
      procedure SetCSVFieldDelimiter(Value:char);
   protected
      FDefLoaded:boolean;
+     {$IFDEF UNICODE}
+     FStreamWriter: TStreamWriter;
+     FStreamReader: TStreamReader;
+     {$ENDIF}
 
+     procedure WriteString(const s: string);
+
+     {$IFNDEF UNICODE}
      function GetChunk:boolean; virtual;
+     {$ENDIF}
      function GetLine:boolean; virtual;
      function GetWord(var null:boolean):string; virtual;
 
@@ -248,6 +261,14 @@ type
   TkbmProtCustomMemTable = class(TkbmCustomMemTable);
   TkbmProtCommon = class(TkbmCommon);
 
+{$IFNDEF UNICODE}
+function CharInSet(const AChar: Char; const ASet: TSysCharSet): Boolean;
+{$IFDEF LEVEL10}inline;{$ENDIF}
+begin
+  Result := AChar in ASet;
+end;
+{$ENDIF}
+
 // General procedures
 // ************************************************************
 
@@ -264,7 +285,7 @@ begin
      // Count CR/LF.
      l:=0;
      for i:=1 to length(Source) do
-         if Source[i] in [#13,#10,'%',#0] then inc(l);
+         if CharInSet(Source[i], [#13,#10,'%',#0]) then inc(l);
 
      // If no special characters, return the original string.
      if l=0 then
@@ -461,6 +482,15 @@ begin
      if Value<>#0 then FCSVFieldDelimiter:=Value;
 end;
 
+procedure TkbmCustomCSVStreamFormat.WriteString(const s: string);
+begin
+  {$IFDEF UNICODE}
+  FStreamWriter.Write(s);
+  {$ELSE}
+  WorkStream.WriteBuffer(Pointer(s)^, Length(s)*SizeOf(Char));
+  {$ENDIF}
+end;
+
 procedure TkbmCustomCSVStreamFormat.BeforeSave(ADataset:TkbmCustomMemTable);
 begin
      // Check if trying to save deltas in CSV format. Not supported.
@@ -470,6 +500,10 @@ begin
      inherited;
 
      // Setup standard layout for data.
+     {$IFDEF LEVEL14}
+     with FormatSettings do
+     begin
+     {$ENDIF}
      Ods:=DateSeparator;
      Oms:=DecimalSeparator;
      Ots:=TimeSeparator;
@@ -490,11 +524,24 @@ begin
           CurrencyFormat:=0;
           NegCurrFormat:=1;
      end;
+     {$IFDEF LEVEL14}
+     end;
+     {$ENDIF}
+
+     {$IFDEF UNICODE}
+     if Assigned(FStreamWriter) then
+       FreeAndNil(FStreamWriter);
+     FStreamWriter := TStreamWriter.Create(Self.WorkStream, TEncoding.UTF8);
+     {$ENDIF}
 end;
 
 procedure TkbmCustomCSVStreamFormat.AfterSave(ADataset:TkbmCustomMemTable);
 begin
      // Restore locale setup.
+     {$IFDEF LEVEL14}
+     with FormatSettings do
+     begin
+     {$ENDIF}
      DateSeparator:=Ods;
      DecimalSeparator:=Oms;
      TimeSeparator:=Ots;
@@ -503,13 +550,24 @@ begin
      NegCurrFormat:=Onf;
      ShortDateFormat:=Osdf;
      CurrencyString:=Ocs;
+     {$IFDEF LEVEL14}
+     end;
+     {$ENDIF}
+
+     {$IFDEF UNICODE}
+     if Assigned(FStreamWriter) then
+     begin
+       FStreamWriter.Flush;
+       FreeAndNil(FStreamWriter);
+     end;
+     {$ENDIF}
 
      inherited;
 end;
 
 procedure TkbmCustomCSVStreamFormat.SaveDef(ADataset:TkbmCustomMemTable);
 var
-   i,l:integer;
+   i:integer;
    nf:integer;
    s:string;
 begin
@@ -523,14 +581,12 @@ begin
 {$IFNDEF CSV_FILE_1XX_COMPATIBILITY}
           // Write file version.
           s:=QuoteString(PChar(kbmFileVersionMagic),FCSVQuote)+FCSVFieldDelimiter+QuoteString(IntToStr(kbmCSVFileVersion),FCSVQuote)+#13+#10;
-          l:=length(s);
-          WorkStream.WriteBuffer(Pointer(s)^, l);
+          WriteString(s);
 {$ENDIF}
 
           // Write header.
           s:=QuoteString(PChar(kbmTableDefMagicStart),FCSVQuote)+#13+#10;
-          l:=length(s);
-          WorkStream.WriteBuffer(Pointer(s)^, l);
+          WriteString(s);
 
           // Write fielddefinitions.
           for i:=0 to nf-1 do
@@ -553,8 +609,7 @@ begin
                     s:=s+','+QuoteString(Fields[i].DefaultExpression,'"');
 {$ENDIF}
                     s:=QuoteString(PChar(s),FCSVQuote)+#13+#10;
-                    l:=length(s);
-                    WorkStream.WriteBuffer(Pointer(s)^, l);
+                    WriteString(s);
                end;
           end;
 
@@ -564,8 +619,7 @@ begin
           begin
                // Write header.
                s:=QuoteString(PChar(kbmIndexDefMagicStart),FCSVQuote)+#13+#10;
-               l:=length(s);
-               WorkStream.WriteBuffer(Pointer(s)^, l);
+               WriteString(s);
 
                // Write indexdefinitions.
                for i:=0 to IndexDefs.count-1 do
@@ -585,27 +639,24 @@ begin
 {$ENDIF}
                         if ixUnique in Options then s:=s+',UNIQ';
                         s:=QuoteString(PChar(s),FCSVQuote)+#13+#10;
-                        l:=length(s);
-                        WorkStream.WriteBuffer(Pointer(s)^, l);
+                        WriteString(s);
                    end;
 
                // Write footer.
                s:=QuoteString(PChar(kbmIndexDefMagicEnd),FCSVQuote)+#13+#10;
-               l:=length(s);
-               WorkStream.WriteBuffer(Pointer(s)^, l);
+               WriteString(s);
           end;
 {$ENDIF}
 
           // Write footer.
           s:=QuoteString(PChar(kbmTableDefMagicEnd),FCSVQuote)+#13+#10;
-          l:=length(s);
-          WorkStream.WriteBuffer(Pointer(s)^, l);
+          WriteString(s);
      end;
 end;
 
 procedure TkbmCustomCSVStreamFormat.SaveData(ADataset:TkbmCustomMemTable);
 var
-   i,j,l:integer;
+   i,j:integer;
    nf:integer;
    s,s1,a:string;
    Accept:boolean;
@@ -634,8 +685,7 @@ begin
                end;
                if FCSVRecordDelimiter <> #0 then s:=s+FCSVRecordDelimiter;
                s:=s+#13+#10;
-               l:=length(s);
-               WorkStream.Write(Pointer(s)^, l);
+               WriteString(s);
           end;
 
           // Write all records in CSV format ordered by current index.
@@ -660,8 +710,13 @@ begin
                        if OverrideActiveRecordBuffer=nil then continue;
 
                        // Calculate fields.
-                       ClearCalcFields(PChar(OverrideActiveRecordBuffer));
-                       GetCalcFields(PChar(OverrideActiveRecordBuffer));
+                       {$IFDEF LEVEL18}
+                       ClearCalcFields(NativeInt(OverrideActiveRecordBuffer));
+                       GetCalcFields(NativeInt(OverrideActiveRecordBuffer));
+                       {$ELSE}
+                       ClearCalcFields(TRecordBuffer(OverrideActiveRecordBuffer));
+                       GetCalcFields(TRecordBuffer(OverrideActiveRecordBuffer));
+                       {$ENDIF}
 
                        // Check filter of record.
                        Accept:=FilterRecord(OverrideActiveRecordBuffer,false);
@@ -720,10 +775,9 @@ begin
                        // Add record delimiter.
                        if FCSVRecordDelimiter <> #0 then s:=s+FCSVRecordDelimiter;
                        s:=s+#13+#10;
-                       l:=length(s);
 
                        // Write line.
-                       WorkStream.WriteBuffer(Pointer(s)^, l);
+                       WriteString(s);
 
                        // Increment savecounter.
                        inc(FSaveCount);
@@ -736,6 +790,7 @@ begin
      end;
 end;
 
+{$IFNDEF UNICODE}
 function TkbmCustomCSVStreamFormat.GetChunk:boolean;
 begin
      remaining_in_buf:=WorkStream.Read(pointer(buf)^,CSVBUFSIZE);
@@ -748,13 +803,26 @@ begin
      if (ProgressCnt=0) then
          FDataset.Progress(trunc((WorkStream.Position / StreamSize) * 100),mtpcLoad);
 end;
+{$ENDIF}
 
 function TkbmCustomCSVStreamFormat.GetLine:boolean;
 var
-  EOL,EOF:boolean;
+  EOF:boolean;
+  {$IFNDEF UNICODE}
+  EOL:boolean;
   ep,sp:PChar;
   TmpStr:string;
+  {$ENDIF}
 begin
+     {$IFDEF UNICODE}
+     Line := FStreamReader.ReadLine;
+     // Show progress.
+     inc(ProgressCnt);
+     ProgressCnt:=ProgressCnt mod 100;
+     if (ProgressCnt=0) then
+         FDataset.Progress(trunc((WorkStream.Position / StreamSize) * 100),mtpcLoad);
+     EOF := FStreamReader.EndOfStream;
+     {$ELSE}
      // Cut out a line.
      EOL:=false;
      EOF:=false;
@@ -784,7 +852,7 @@ begin
           end;
 
           // Check if we got EOL character, skip them and finally break.
-          if (bufptr^) in [#0, #10, #13] then
+          if CharInSet(bufptr^, [#0, #10, #13]) then
           begin
                if not EOL then ep:=bufptr-1;
                EOL:=true
@@ -800,7 +868,7 @@ begin
           Inc(bufptr);
           dec(remaining_in_buf);
      end;
-
+     {$ENDIF}
      lptr:=PChar(Line);
      elptr:=PChar(Line)+Length(Line);
      Result:=(not EOF);
@@ -1028,7 +1096,11 @@ begin
      inherited;
 
      // Allocate space for a buffer.
+     {$IFDEF UNICODE}
+     SetLength(buf, CSVBUFSIZE);
+     {$ELSE}
      GetMem(buf,CSVBUFSIZE);
+     {$ENDIF}
 
      // Still nothing in the buffer to handle.
      FDataset:=ADataset;
@@ -1037,6 +1109,10 @@ begin
      ProgressCnt:=0;
 
      // Setup standard layout for data.
+     {$IFDEF LEVEL14}
+     with FormatSettings do
+     begin
+     {$ENDIF}
      Ods:=DateSeparator;
      Oms:=DecimalSeparator;
      Ots:=TimeSeparator;
@@ -1058,10 +1134,23 @@ begin
           CurrencyFormat:=0;
           NegCurrFormat:=1;
      end;
+     {$IFDEF LEVEL14}
+     end;
+     {$ENDIF}
+
+     {$IFDEF UNICODE}
+     if Assigned(FStreamReader) then
+       FreeAndNil(FStreamReader);
+     FStreamReader := TStreamReader.Create(WorkStream, TEncoding.UTF8, True);
+     {$ENDIF}
 end;
 
 procedure TkbmCustomCSVStreamFormat.AfterLoad(ADataset:TkbmCustomMemTable);
 begin
+     {$IFDEF LEVEL14}
+     with FormatSettings do
+     begin
+     {$ENDIF}
      DateSeparator:=Ods;
      DecimalSeparator:=Oms;
      TimeSeparator:=Ots;
@@ -1070,8 +1159,20 @@ begin
      NegCurrFormat:=Onf;
      ShortDateFormat:=Osdf;
      CurrencyString:=Ocs;
+     {$IFDEF LEVEL14}
+     end;
+     {$ENDIF}
 
+     {$IFDEF UNICODE}
+     SetLength(buf, 0);
+     {$ELSE}
      FreeMem(buf);
+     {$ENDIF}
+
+     {$IFDEF UNICODE}
+     if Assigned(FStreamReader) then
+       FreeAndNil(FStreamReader);
+     {$ENDIF}
 
      inherited;
 end;
