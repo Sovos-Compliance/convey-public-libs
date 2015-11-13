@@ -8704,7 +8704,11 @@ begin
 {$ENDIF}
           ftString:
             begin
-              {$IFDEF UNICODE}AnsiStrings.{$ENDIF}StrLCopy (s, PAnsiChar (AnsiString(VarToStr (AValue))), DataSize);
+              {$IFDEF UNICODE}
+              AnsiStrings.StrLCopy (s, PAnsiChar (AnsiString(VarToStr (AValue))), DataSize);
+              {$ELSE}
+              StrLCopy (s, PAnsiChar (VarToStr (AValue)), DataSize);
+              {$ENDIF}
               if TStringField (Field).Transliterate then
                 DataSet.Translate (s, s, True);
               pValue := s;
@@ -9503,8 +9507,8 @@ var
                     Result := false;
                     exit;
                   end;
-                pArg1 := pAnsiChar (AnsiString(VarToStr (Arg1)));
-                pArg2 := pAnsiChar (AnsiString(VarToStr (Arg2)));
+                pArg1 := pAnsiChar ({$IFDEF UNICODE}AnsiString{$ENDIF}(VarToStr (Arg1)));
+                pArg2 := pAnsiChar ({$IFDEF UNICODE}AnsiString{$ENDIF}(VarToStr (Arg2)));
                 b := MatchesMask (pArg1, pArg2);
                 Result := Variant (b);
                 exit;
@@ -9560,8 +9564,8 @@ var
 
             coLIKE:
               begin
-                pArg1 := pAnsiChar (AnsiString(VarToStr (ParseNode (pfdStart, pArg1))));
-                pArg2 := pAnsiChar (AnsiString(VarToStr (ParseNode (pfdStart, pArg2))));
+                pArg1 := pAnsiChar ({$IFDEF UNICODE}AnsiString{$ENDIF}(VarToStr (ParseNode (pfdStart, pArg1))));
+                pArg2 := pAnsiChar ({$IFDEF UNICODE}AnsiString{$ENDIF}(VarToStr (ParseNode (pfdStart, pArg2))));
                 b := MatchesMask (pArg1, pArg2);
                 Result := Variant (b);
                 exit;
@@ -9580,7 +9584,7 @@ var
               begin
                 pArg1 := pfdStart;
                 inc (pArg1, iLiteralStart + PWord (@pfd [0])^);
-                pArg1 := pAnsiChar (AnsiString(AnsiUpperCase (pArg1))); // Function name
+                pArg1 := pAnsiChar (AnsiUpperCase (pArg1)); // Function name
                 pArg2 := pfdStart;
                 inc (pArg2, CANEXPRSIZE + PWord (@pfd [2])^);
                   // Pointer to Value or Const
@@ -9614,7 +9618,7 @@ var
 
                     Result := Arg2;
                     try
-                      pArg1 := pAnsiChar (AnsiString(VarToStr (Result [0])));
+                      pArg1 := pAnsiChar ({$IFDEF UNICODE}AnsiString{$ENDIF}(VarToStr (Result [0])));
                     except
                       on EVariantError do // no Params for "SubString"
                         raise EMemTableError.CreateFmt (kbmInvMissParam,
@@ -9744,8 +9748,8 @@ var
                     if VarIsArray (Result) then
                       begin
                         try
-                          pArg1 := PAnsiChar (AnsiString(VarToStr (Result [0])));
-                          pArg2 := PAnsiChar (AnsiString(VarToStr (Result [1])));
+                          pArg1 := PAnsiChar ({$IFDEF UNICODE}AnsiString{$ENDIF}(VarToStr (Result [0])));
+                          pArg2 := PAnsiChar ({$IFDEF UNICODE}AnsiString{$ENDIF}(VarToStr (Result [1])));
                         except
                           on EVariantError do // no Params for DATE
                             raise EMemTableError.CreateFmt (kbmInvMissParam,
