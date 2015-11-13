@@ -330,8 +330,13 @@ begin
                if (FOverrideActiveRecordBuffer=nil) then continue;
 
                // Calculate fields.
-               ClearCalcFields(PChar(FOverrideActiveRecordBuffer));
-               GetCalcFields(PChar(FOverrideActiveRecordBuffer));
+               {$IFDEF LEVEL18}
+               ClearCalcFields(NativeInt(FOverrideActiveRecordBuffer));
+               GetCalcFields(NativeInt(FOverrideActiveRecordBuffer));
+               {$ELSE}
+               ClearCalcFields(TRecordBuffer(FOverrideActiveRecordBuffer));
+               GetCalcFields(TRecordBuffer(FOverrideActiveRecordBuffer));
+               {$ENDIF}
 
                // Check filter of record.
                Accept:=FilterRecord(FOverrideActiveRecordBuffer,false);

@@ -1600,6 +1600,15 @@ const
 {$ENDIF}
 
 type
+  {$IFNDEF LEVEL14}
+  TRecordBuffer = PAnsiChar;
+  TValueBuffer = Pointer;
+  {$ENDIF}
+  {$IFNDEF LEVEL16}
+  NativeInt = Longint;
+  TBookmark = Pointer;
+  {$ENDIF}
+
   EMemTableError = class (EDataBaseError);
 
   TkbmCustomMemTable = class;
@@ -1636,7 +1645,7 @@ type
     PrevRecordVersion: PkbmRecord;
 
     // Data starts at place pointed at by data, right after the end of TkbmRecord.
-    Data: PChar;
+    Data: PAnsiChar;
 
 {$IFDEF DO_CHECKRECORD}
     EndIdent: longint;
@@ -1675,7 +1684,7 @@ type
     mtcpoProperties, mtcpoLookup, mtcpoCalculated, mtcpoAppend, mtcpoFieldIndex);
   TkbmMemTableCopyTableOptions = set of TkbmMemTableCopyTableOption;
 
-  PkbmVarLength = PChar;
+  PkbmVarLength = PAnsiChar;
   PPkbmVarLength = ^PkbmVarLength;
 
   TkbmIndexType = (mtitNonSorted, mtitSorted);
@@ -1740,7 +1749,7 @@ type
     function SequentialSearch (FieldList: TkbmFieldList; FirstNo, LastNo:
       integer; KeyRecord: PkbmRecord; Nearest, RespectFilter: boolean; var Index:
       integer; var Found: boolean): integer;
-    function FindRecordNumber (RecordBuffer: PChar): integer;
+    function FindRecordNumber (RecordBuffer: PAnsiChar): integer;
     function Filter (ARecord: PkbmRecord): boolean;
 
   public
@@ -1837,9 +1846,9 @@ type
   TkbmOnSaveField = procedure (DataSet: TDataSet; FieldNo: integer; Field:
     TField) of object;
   TkbmOnCompressField = procedure (DataSet: TDataSet; Field: TField; const
-    Buffer: PChar; var Size: longint; var ResultBuffer: PChar) of object;
+    Buffer: PAnsiChar; var Size: longint; var ResultBuffer: PAnsiChar) of object;
   TkbmOnDecompressField = procedure (DataSet: TDataSet; Field: TField; const
-    Buffer: PChar; var Size: longint; var ResultBuffer: PChar) of object;
+    Buffer: PAnsiChar; var Size: longint; var ResultBuffer: PAnsiChar) of object;
   TkbmOnSave = procedure (DataSet: TDataSet; StorageType:
     TkbmMemTableStorageType; Stream: TStream) of object;
   TkbmOnLoad = procedure (DataSet: TDataSet; StorageType:
@@ -2134,7 +2143,7 @@ type
     function GetDeletedRecordsCount: integer;
 
     function GetFieldSize (FieldType: TFieldType; Size: longint): longint;
-    function GetFieldPointer (ARecord: PkbmRecord; Field: TField): PChar;
+    function GetFieldPointer (ARecord: PkbmRecord; Field: TField): PAnsiChar;
 
     procedure SetStandalone (Value: boolean);
     function GetStandalone: boolean;
@@ -2446,9 +2455,9 @@ type
     procedure InternalClose; override;
     procedure InternalFirst; override;
     procedure InternalLast; override;
-    procedure InternalAddRecord (Buffer: Pointer; Append: Boolean); override;
+    procedure InternalAddRecord (Buffer: {$IFDEF LEVEL16}TRecordBuffer{$ELSE}Pointer{$ENDIF}; Append: Boolean); override;
     procedure InternalDelete; override;
-    procedure InternalInitRecord (Buffer: PChar); override;
+    procedure InternalInitRecord (Buffer: TRecordBuffer); override;
     procedure InternalPost; override;
     procedure InternalCancel; override;
     procedure InternalEdit; override;
@@ -2456,7 +2465,7 @@ type
     procedure InternalInsert; override;
 {$ENDIF}
     procedure InternalInitFieldDefs; override;
-    procedure InternalSetToRecord (Buffer: PChar); override;
+    procedure InternalSetToRecord (Buffer: TRecordBuffer); override;
     procedure CheckActive; override;
     procedure CheckInactive; override;
     procedure DoBeforeClose; override;
@@ -2470,23 +2479,23 @@ type
     function GetCanModify: Boolean; override;
     function GetRecordSize: Word; override;
     function GetRecordCount: integer; override;
-    function AllocRecordBuffer: PChar; override;
-    procedure FreeRecordBuffer (var Buffer: PChar); override;
+    function AllocRecordBuffer: TRecordBuffer; override;
+    procedure FreeRecordBuffer (var Buffer: TRecordBuffer); override;
     procedure CloseBlob (Field: TField); override;
-    procedure SetFieldData (Field: TField; Buffer: Pointer); override;
+    procedure SetFieldData (Field: TField; Buffer: TValueBuffer); override;
 {$IFDEF LEVEL3}
     function GetFieldData (Field: TField; Buffer: Pointer): Boolean; override;
 {$ENDIF}
-    function GetRecord (Buffer: PChar; GetMode: TGetMode; DoCheck: Boolean):
+    function GetRecord (Buffer: TRecordBuffer; GetMode: TGetMode; DoCheck: Boolean):
       TGetResult; override;
     function FindRecord (Restart, GoForward: Boolean): Boolean; override;
     function GetRecNo: integer; override;
     procedure SetRecNo (Value: integer); override;
     function GetIsIndexField (Field: TField): Boolean; override;
-    function GetBookmarkFlag (Buffer: PChar): TBookmarkFlag; override;
-    procedure SetBookmarkFlag (Buffer: PChar; Value: TBookmarkFlag); override;
-    procedure GetBookmarkData (Buffer: PChar; Data: Pointer); override;
-    procedure SetBookmarkData (Buffer: PChar; Data: Pointer); override;
+    function GetBookmarkFlag (Buffer: TRecordBuffer): TBookmarkFlag; override;
+    procedure SetBookmarkFlag (Buffer: TRecordBuffer; Value: TBookmarkFlag); override;
+    procedure GetBookmarkData (Buffer: TRecordBuffer; Data: TBookmark); override;
+    procedure SetBookmarkData (Buffer: TRecordBuffer; Data: TBookmark); override;
     procedure InternalGotoBookmark (Bookmark: Pointer); override;
     procedure InternalHandleException; override;
     function GetDataSource: TDataSource; override;
@@ -2499,7 +2508,7 @@ type
     procedure CreateFieldDefs;
 
 {$IFDEF LEVEL5}
-    procedure DataEvent (Event: TDataEvent; Info: Longint); override;
+    procedure DataEvent (Event: TDataEvent; Info: NativeInt); override;
 {$ENDIF}
     procedure Loaded; override;
 
@@ -2558,7 +2567,11 @@ type
     function CompareBookmarks (Bookmark1, Bookmark2: TBookmark): Integer;
       override;
 {$IFDEF LEVEL4}
+    {$IFDEF LEVEL16}
+    function GetFieldData (Field: TField; var Buffer: TValueBuffer): Boolean; override;
+    {$ELSE}
     function GetFieldData (Field: TField; Buffer: Pointer): Boolean; override;
+    {$ENDIF}
     procedure SetBlockReadSize (Value: Integer); override;
     function UpdateStatus: TUpdateStatus; override;
 {$ENDIF}
@@ -2938,9 +2951,9 @@ type
     FModified: Boolean;
 
     // Internal work pointers.
-    FpWorkBufferField: PChar;
+    FpWorkBufferField: PAnsiChar;
     FpWorkBufferBlob: PPkbmVarLength;
-    FpTableRecordField: PChar;
+    FpTableRecordField: PAnsiChar;
     FpTableRecordBlob: PPkbmVarLength;
 
     procedure ReadBlobData;
@@ -3102,7 +3115,9 @@ uses
   Dialogs, Forms, Controls,
 {$ENDIF}
   TypInfo, IniFiles,
-
+{$IFDEF UNICODE}
+  AnsiStrings,
+{$ENDIF}
 {$INCLUDE kbmMemRes.inc}
   DBConsts;
 
@@ -3122,7 +3137,13 @@ const
       (ftUnknown), ord (ftUnknown), ord (ftUnknown),
     ord (ftUnknown), ord (ftUnknown){$IFDEF LEVEL6}, ord (ftTimeStamp), ord
       (ftFmtBCD){$ENDIF} {$IFDef LEVEL10}, ord (ftUnknown), ord (ftUnknown),
-      ord (ftUnknown), ord (ftUnknown) {$EndIf});
+      ord (ftUnknown), ord (ftUnknown) {$EndIf}
+    {$IFDEF LEVEL14}
+    , ord (ftUnknown), ord (ftUnknown), ord (ftUnknown)
+    , ord (ftUnknown), ord (ftUnknown), ord (ftUnknown), ord (ftUnknown)
+    , ord (ftUnknown), ord (ftUnknown), ord (ftUnknown)
+    {$ENDIF}
+  );
 {$ENDIF}
 {$IFDEF OVERLOAD_LUD}
 const
@@ -3140,15 +3161,15 @@ function AllocVarLength (Size: longint): PkbmVarLength;
 begin
   GetMem (Result, Size + 4);
   FillChar (Result^, Size + 4, 0);
-  Result [0] := Char (Size and $FF);
-  Result [1] := Char ((Size shr 8) and $FF);
-  Result [2] := Char ((Size shr 16) and $FF);
-  Result [3] := Char ((Size shr 24) and $FF);
+  Result [0] := AnsiChar (Size and $FF);
+  Result [1] := AnsiChar ((Size shr 8) and $FF);
+  Result [2] := AnsiChar ((Size shr 16) and $FF);
+  Result [3] := AnsiChar ((Size shr 24) and $FF);
 end;
 
 // Get pointer to varlength data.
 
-function GetVarLengthData (AVarLength: PkbmVarLength): PChar;
+function GetVarLengthData (AVarLength: PkbmVarLength): PAnsiChar;
 begin
   Result := AVarLength + 4;
 end;
@@ -3165,7 +3186,7 @@ end;
 
 // Allocate a varlength and populate it.
 
-function AllocVarLengthAs (const Source: PChar; Size: longint): PkbmVarLength;
+function AllocVarLengthAs (const Source: PAnsiChar; Size: longint): PkbmVarLength;
 begin
   Result := AllocVarLength (Size);
   move (Source^, GetVarLengthData (Result)^, Size);
@@ -3187,20 +3208,20 @@ end;
 
 procedure DumpVarLength (AVarLength: PkbmVarLength);
 var
-  s: string;
+  s: AnsiString;
   i: integer;
   sz: integer;
-  p: PChar;
+  p: PAnsiChar;
 begin
-  s := 'VarLength ' + inttohex (longint (AVarLength), 8);
-  OutputDebugString (PChar (s));
-  s := inttostr (byte (AVarLength [0])) + inttostr (byte (AVarLength [1])) +
-    inttostr (byte (AVarLength [2])) + inttostr (byte (AVarLength [3]));
+  s := 'VarLength ' + AnsiString(inttohex (longint (AVarLength), 8));
+  OutputDebugStringA (PAnsiChar (s));
+  s := AnsiString(inttostr (byte (AVarLength [0])) + inttostr (byte (AVarLength [1])) +
+    inttostr (byte (AVarLength [2])) + inttostr (byte (AVarLength [3])));
   s := 'Size data=' + s;
-  OutputDebugString (PChar (s));
+  OutputDebugStringA (PAnsiChar (s));
   sz := GetVarLengthSize (AVarLength);
-  s := ' Size=' + inttostr (sz);
-  OutputDebugString (PChar (s));
+  s := ' Size=' + AnsiString(inttostr (sz));
+  OutputDebugStringA (PAnsiChar (s));
   p := GetVarLengthData (AVarLength);
   s := '';
   for i := 0 to sz - 1 do
@@ -3208,7 +3229,7 @@ begin
       s := s + p [i];
     end;
   s := ' Data=' + s;
-  OutputDebugString (PChar (s));
+  OutputDebugStringA (PAnsiChar (s));
 end;
 {$ENDIF}
 
@@ -3224,7 +3245,7 @@ end;
 
 function StreamToVariant (stream: TStream): variant;
 var
-  p: PChar;
+  p: Pointer;
 begin
   stream.Seek (0, 0);
   Result := VarArrayCreate ([0, stream.Size - 1], VarByte);
@@ -3244,7 +3265,7 @@ end;
 
 procedure VariantToStream (AVariant: variant; stream: TStream);
 var
-  p: PChar;
+  p: Pointer;
   sz: integer;
 begin
   // Check if variant contains data and is an array.
@@ -3267,7 +3288,7 @@ function CompareFields (KeyField, AField: pointer; FieldType: TFieldType;
   LocaleID: TkbmLocaleID; IndexFieldOptions: integer; var FullCompare: boolean):
   integer;
 var
-  p: PChar;
+  p: PAnsiChar;
   l, l1: integer;
   ts1, ts2: TDateTimeRec;
   d: Double;
@@ -3296,13 +3317,13 @@ begin
           // If partial, cut to reference length. p1=reference field value, p2=tried field value.
           if (IndexFieldOptions and mtifoPartial) <> 0 then
             begin
-              l := StrLen (PChar (KeyField));
-              l1 := StrLen (PChar (AField));
+              l := {$IFDEF UNICODE}AnsiStrings.{$ENDIF}StrLen (PAnsiChar (KeyField));
+              l1 := {$IFDEF UNICODE}AnsiStrings.{$ENDIF}StrLen (PAnsiChar (AField));
               FullCompare := (l = l1);
               if l > l1 then
                 l := l1;
-              p := StrAlloc (l + 1);
-              StrLCopy (p, AField, l);
+              p := {$IFDEF UNICODE}AnsiStrAlloc{$ELSE}StrAlloc{$ENDIF}(l + 1);
+              {$IFDEF UNICODE}AnsiStrings.{$ENDIF}StrLCopy (p, AField, l);
             end
           else
             p := AField;
@@ -3310,24 +3331,25 @@ begin
           if (IndexFieldOptions and mtifoIgnoreLocale) <> 0 then
             begin
               if (IndexFieldOptions and mtifoCaseInsensitive) <> 0 then
-                Result := CompareText (PChar (KeyField), p)
+                Result := CompareText (PAnsiChar (KeyField), p)
               else
-                Result := CompareStr (PChar (KeyField), p);
+                Result := CompareStr (PAnsiChar (KeyField), p);
             end
           else
             begin
 {$IFDEF LINUX}
               if (IndexFieldOptions and mtifoCaseInsensitive) <> 0 then
-                Result := AnsiCompareText (string (KeyField), string (p))
+                Result := AnsiCompareText (AnsiString (KeyField), AnsiString (p))
               else
-                Result := AnsiCompareStr (string (KeyField), string (p));
+                Result := AnsiCompareStr (AnsiString (KeyField), AnsiString (p));
 {$ELSE}
               if (IndexFieldOptions and mtifoCaseInsensitive) <> 0 then
                 c := NORM_IGNORECASE
               else
                 c := 0;
-              Result := CompareString (LocaleID, c, PChar (KeyField), strlen
-                (KeyField), p, strlen (p));
+              Result := CompareStringA (LocaleID, c, PAnsiChar (KeyField),
+                {$IFDEF UNICODE}AnsiStrings.{$ENDIF}strlen
+                (PAnsiChar(KeyField)), p, {$IFDEF UNICODE}AnsiStrings.{$ENDIF}strlen (p));
               if Result = 0 then
                 raise EMemTableError.Create (kbmInvalidLocale + ' ' + inttostr
                   (LocaleID));
@@ -3336,7 +3358,7 @@ begin
             end;
         finally
           if p <> AField then
-            StrDispose (p);
+            {$IFDEF UNICODE}AnsiStrings.{$ENDIF}StrDispose (p);
         end;
       end;
 
@@ -3592,7 +3614,7 @@ begin
   Result^.StartIdent := kbmRecordIdent;
   Result^.EndIdent := kbmRecordIdent;
 {$ENDIF}
-  Result^.Data := PChar (Result) + Sizeof (TkbmRecord);
+  Result^.Data := PAnsiChar (Result) + Sizeof (TkbmRecord);
   _InternalClearRecord (Result);
 {$IFDEF DO_CHECKRECORD}
   _InternalCheckRecord (Result);
@@ -3618,7 +3640,7 @@ procedure TkbmCommon._InternalFreeRecordVarLengths (ARecord: PkbmRecord);
 var
   i: integer;
   pVarLength: PPkbmVarLength;
-  pField: PChar;
+  pField: PAnsiChar;
   fld: TField;
 begin
   // Delete varlengths if any defined.
@@ -3650,7 +3672,7 @@ procedure TkbmCommon._InternalTransferRecord (SourceRecord, DestRecord:
   PkbmRecord);
 var
   i: integer;
-  pFieldSrc, pFieldDest: PChar;
+  pFieldSrc, pFieldDest: PAnsiChar;
   pVarLengthSrc, pVarLengthDest: PPkbmVarLength;
   fld: TField;
 begin
@@ -3768,7 +3790,7 @@ end;
 procedure TkbmCommon._InternalCopyVarLength (SourceRecord, DestRecord:
   PkbmRecord; Field: TField);
 var
-  pFldSrc, pFldDest: PChar;
+  pFldSrc, pFldDest: PAnsiChar;
   pVarLenSrc, pVarLenDest: PPkbmVarLength;
   pVarLenClone: PkbmVarLength;
 begin
@@ -3826,7 +3848,7 @@ begin
       begin
         // Store the 0 even if its taking up one extra byte in all cases.
         // Simplyfies decompression.
-        Size := strlen (PChar (Buffer)) + 1;
+        Size := {$IFDEF UNICODE}AnsiStrings.{$ENDIF}strlen (PAnsiChar (Buffer)) + 1;
         Result := Buffer;
       end;
   else
@@ -3897,7 +3919,7 @@ function TkbmCommon._InternalCompareRecords (FieldList: TkbmFieldList;
   boolean; How: TkbmCompareHow): Integer;
 var
   i: integer;
-  p1, p2: PChar;
+  p1, p2: PAnsiChar;
   sz1, sz2: longint;
   pv1, pv2: PkbmVarLength;
   fld: TField;
@@ -4119,7 +4141,7 @@ begin
 {$IFNDEF LEVEL3}
     ftFixedChar,
 {$ENDIF}
-    ftString: Result := Size + 1;
+    ftString: Result := (Size + 1) * SizeOf(AnsiChar);
     ftBytes: Result := Size;
     ftVarBytes: Result := Size + SizeOf (Word);
     ftSmallInt: Result := SizeOf (SmallInt);
@@ -4156,7 +4178,7 @@ begin
   end;
 end;
 
-function TkbmCommon.GetFieldPointer (ARecord: PkbmRecord; Field: TField): PChar;
+function TkbmCommon.GetFieldPointer (ARecord: PkbmRecord; Field: TField): PAnsiChar;
 begin
   Result := nil;
   if ARecord = nil then
@@ -5510,8 +5532,13 @@ begin
           if FRecalcOnIndex then
             begin
               // Fill calc fields part of buffer
-              ClearCalcFields (PChar (pRec));
-              GetCalcFields (PChar (pRec));
+              {$IFDEF LEVEL18}
+              ClearCalcFields (NativeInt (pRec));
+              GetCalcFields (NativeInt (pRec));
+              {$ELSE}
+              ClearCalcFields (TRecordBuffer (pRec));
+              GetCalcFields (TRecordBuffer (pRec));
+              {$ENDIF}
             end;
         end;
 
@@ -5783,12 +5810,12 @@ begin
   FOrdered := false;
 end;
 
-function TkbmIndex.FindRecordNumber (RecordBuffer: PChar): integer;
+function TkbmIndex.FindRecordNumber (RecordBuffer: PAnsiChar): integer;
 var
   i: integer;
 begin
   for i := 0 to FReferences.Count - 1 do
-    if PChar (FReferences [i]) = RecordBuffer then
+    if PAnsiChar (FReferences [i]) = RecordBuffer then
       begin
         Result := i;
         exit;
@@ -6122,8 +6149,13 @@ begin
               if FRecalcOnIndex then
                 begin
                   //fill calc fields part of buffer
-                  ClearCalcFields (PChar (pRec));
-                  GetCalcFields (PChar (pRec));
+                  {$IFDEF LEVEL18}
+                  ClearCalcFields (NativeInt (pRec));
+                  GetCalcFields (NativeInt (pRec));
+                  {$ELSE}
+                  ClearCalcFields (TRecordBuffer (pRec));
+                  GetCalcFields (TRecordBuffer (pRec));
+                  {$ENDIF}
                 end;
             end;
 
@@ -6498,7 +6530,7 @@ end;
 
 {$IFDEF LEVEL5}
 
-procedure TkbmCustomMemTable.DataEvent (Event: TDataEvent; Info: Longint);
+procedure TkbmCustomMemTable.DataEvent (Event: TDataEvent; Info: NativeInt);
 begin
   if FCommon.FThreadProtected then
     exit;
@@ -7628,7 +7660,7 @@ begin
   if not FRangeActive then
     exit;
 
-  if ActiveBuffer <> nil then
+  if Pointer(ActiveBuffer) <> nil then
     n := PkbmRecord (ActiveBuffer)^.RecordID
   else
     n := -1;
@@ -7703,13 +7735,13 @@ end;
 
 procedure TkbmCustomMemTable.PostAutoInc;
 var
-  pai: PChar;
+  pai: PAnsiChar;
   n: integer;
 begin
   // If an autoinc field is specified, allways keep track of highest used number.
   if Assigned (FAutoIncField) then
     begin
-      pai := PChar (FCommon.GetFieldPointer (PkbmRecord (ActiveBuffer),
+      pai := PAnsiChar (FCommon.GetFieldPointer (PkbmRecord (ActiveBuffer),
         FAutoIncField));
       FCommon.Lock;
       try
@@ -8352,15 +8384,18 @@ end;
 
 // Result is data in the buffer and a boolean return (true=not null, false=is null).
 
-function TkbmCustomMemTable.GetFieldData (Field: TField; Buffer: Pointer):
-  Boolean;
+{$IFDEF LEVEL16}
+function TkbmCustomMemTable.GetFieldData (Field: TField; var Buffer: TValueBuffer): Boolean;
+{$ELSE}
+function TkbmCustomMemTable.GetFieldData (Field: TField; Buffer: Pointer): Boolean;
+{$ENDIF}
 var
-  SourceBuffer: PChar;
+  SourceBuffer: PAnsiChar;
   ActRec, CurRec: PkbmRecord;
   IsVarLength, IsCompressed: boolean;
   pVarLength: PkbmVarLength;
   RecID: longint;
-  cBuffer: PChar;
+  cBuffer: PAnsiChar;
   cSz: longint;
 begin
   FCommon.Lock;
@@ -8432,13 +8467,13 @@ begin
                     CSz);
               end;
 
-            Move (cBuffer^, Buffer^, cSz);
+            Move (cBuffer^, PAnsiChar(Buffer)^, cSz);
           end;
       end
     else
       begin
         if Assigned (Buffer) then
-          Move (SourceBuffer [1], Buffer^, FCommon.GetFieldSize (Field.DataType,
+          Move (SourceBuffer [1], PAnsiChar(Buffer)^, FCommon.GetFieldSize (Field.DataType,
             Field.Size));
       end;
   finally
@@ -8446,14 +8481,14 @@ begin
   end;
 end;
 
-procedure TkbmCustomMemTable.SetFieldData (Field: TField; Buffer: Pointer);
+procedure TkbmCustomMemTable.SetFieldData (Field: TField; Buffer: TValueBuffer);
 var
-  DestinationBuffer: PChar;
+  DestinationBuffer: PAnsiChar;
   ppVarLength: PPkbmVarLength;
   IsVarLength, IsCompressed: boolean;
   sz: longint;
   n: integer;
-  cBuffer: PChar;
+  cBuffer: PAnsiChar;
   cSz: longint;
 begin
   if not FIsOpen then
@@ -8511,14 +8546,14 @@ begin
         // Check if to populate the varlength field.
         if Assigned (Buffer) and longbool (Buffer) then
           begin
-            cBuffer := Buffer;
+            cBuffer := PAnsiChar(Buffer);
             cSz := sz;
 
             // Check if to compress the data.
             if IsCompressed then
               begin
                 if Assigned (FCommon.FOwner.FOnCompressField) then
-                  FCommon.FOwner.FOnCompressField (self, Field, Buffer, cSz,
+                  FCommon.FOwner.FOnCompressField (self, Field, PAnsiChar(Buffer), cSz,
                     CBuffer)
                 else
                   CBuffer := FCommon.CompressFieldBuffer (Field, Buffer, CSz);
@@ -8532,7 +8567,7 @@ begin
         if Assigned (Buffer) then
           begin
             if longbool (Buffer) then
-              Move (Buffer^, DestinationBuffer^, sz)
+              Move (PAnsiChar(Buffer)^, DestinationBuffer^, sz)
             else
               FillChar (DestinationBuffer^, sz, 0);
           end;
@@ -8565,12 +8600,12 @@ begin
   Result := FCommon.FTotalRecordSize;
 end;
 
-function TkbmCustomMemTable.AllocRecordBuffer: PChar;
+function TkbmCustomMemTable.AllocRecordBuffer: TRecordBuffer;
 begin
-  Result := PChar (FCommon._InternalAllocRecord);
+  Result := TRecordBuffer (FCommon._InternalAllocRecord);
 end;
 
-procedure TkbmCustomMemTable.FreeRecordBuffer (var Buffer: PChar);
+procedure TkbmCustomMemTable.FreeRecordBuffer (var Buffer: TRecordBuffer);
 begin
   FCommon._InternalFreeRecord (PkbmRecord (Buffer), false, false);
   Buffer := nil;
@@ -8620,10 +8655,10 @@ end;
 procedure TkbmCustomMemTable.PopulateField (ARecord: PkbmRecord; Field: TField;
   AValue: Variant);
 var
-  p: PChar;
-  pValue: PChar;
+  p: PAnsiChar;
+  pValue: PAnsiChar;
 
-  s: array [0..dsMaxStringSize] of Char;
+  s: array [0..dsMaxStringSize] of AnsiChar;
   fn: integer;
   si: smallint;
 {$IFNDEF LEVEL3}
@@ -8639,7 +8674,7 @@ var
   flags: byte;
   sz: longint;
   CSz: longint;
-  CBuffer: PChar;
+  CBuffer: PAnsiChar;
   ppVarLength: PPkbmVarLength;
 {$IFDEF LEVEL6}
   tssql: TSQLTimeStamp;
@@ -8669,7 +8704,7 @@ begin
 {$ENDIF}
           ftString:
             begin
-              StrLCopy (s, PChar (VarToStr (AValue)), DataSize);
+              {$IFDEF UNICODE}AnsiStrings.{$ENDIF}StrLCopy (s, PAnsiChar (AnsiString(VarToStr (AValue))), DataSize);
               if TStringField (Field).Transliterate then
                 DataSet.Translate (s, s, True);
               pValue := s;
@@ -8678,20 +8713,20 @@ begin
           ftSmallint:
             begin
               si := AValue;
-              pValue := PChar (@si);
+              pValue := PAnsiChar (@si);
             end;
 {$IFNDEF LEVEL3}
           ftLargeInt:
             begin
               li := trunc (double (AValue));
-              pValue := PChar (@li);
+              pValue := PAnsiChar (@li);
             end;
 {$ENDIF}
           ftInteger,
             ftAutoInc:
             begin
               i := AValue;
-              pValue := PChar (@i);
+              pValue := PAnsiChar (@i);
             end;
 
           ftDate:
@@ -8703,7 +8738,7 @@ begin
                 dt := StrToDateTime (VarToStr (AValue));
               ts := DateTimeToTimeStamp (dt);
               dtr.Date := ts.Date;
-              pValue := PChar (@dtr);
+              pValue := PAnsiChar (@dtr);
             end;
 
           ftTime:
@@ -8715,7 +8750,7 @@ begin
                 dt := StrToDateTime (VarToStr (AValue));
               ts := DateTimeToTimeStamp (dt);
               dtr.Time := ts.Time;
-              pValue := PChar (@dtr);
+              pValue := PAnsiChar (@dtr);
             end;
 
           ftDateTime:
@@ -8727,33 +8762,33 @@ begin
                 dt := StrToDateTime (VarToStr (AValue));
               ts := DateTimeToTimeStamp (dt);
               dtr.DateTime := TimeStampToMSecs (ts);
-              pValue := PChar (@dtr);
+              pValue := PAnsiChar (@dtr);
             end;
 {$IFDEF LEVEL6}
           ftTimeStamp:
             begin
               tssql := VarToSQLTimeStamp (AValue);
-              pValue := PChar (@tssql);
+              pValue := PAnsiChar (@tssql);
             end;
 {$ENDIF}
 
           ftWord:
             begin
               w := AValue;
-              pValue := PChar (@w);
+              pValue := PAnsiChar (@w);
             end;
 
           ftBoolean:
             begin
               wb := AValue;
-              pValue := PChar (@wb);
+              pValue := PAnsiChar (@wb);
             end;
 
           ftFloat,
             ftCurrency:
             begin
               d := AValue;
-              pValue := PChar (@d);
+              pValue := PAnsiChar (@d);
             end;
         end;
 
@@ -8814,7 +8849,7 @@ end;
 procedure TkbmCustomMemTable.PopulateVarLength (ARecord: PkbmRecord; Field:
   TField; const Buffer; Size: integer);
 var
-  pField: PChar;
+  pField: PAnsiChar;
   pVarLength: PPkbmVarLength;
 begin
   pField := FCommon.GetFieldPointer (ARecord, Field);
@@ -8936,7 +8971,7 @@ end;
 // All varchars are only referenced to record in recordlist.
 // All versions are only referenced to recordversions in recordlist.
 
-function TkbmCustomMemTable.GetRecord (Buffer: PChar; GetMode: TGetMode;
+function TkbmCustomMemTable.GetRecord (Buffer: TRecordBuffer; GetMode: TGetMode;
   DoCheck: Boolean): TGetResult;
 var
   pRec: PkbmRecord;
@@ -9002,7 +9037,11 @@ begin
           Flag := Flag and (not (kbmrfIntable));
         end;
       if FRecalcOnFetch then
+        {$IFDEF LEVEL18}
+        GetCalcFields (NativeInt(Buffer));
+        {$ELSE}
         GetCalcFields (Buffer);
+        {$ENDIF}
     end
   else if (GetMode = gmCurrent) then
     Result := grError;
@@ -9088,7 +9127,7 @@ var
   //iVersion,iTotalSize,iNodes,iNodeStart:Word;
   iLiteralStart: Word;
 
-  function ParseNode (pfdStart, pfd: PChar): variant;
+  function ParseNode (pfdStart, pfd: PAnsiChar): variant;
   var
     b: WordBool;
     i, z: integer;
@@ -9097,7 +9136,7 @@ var
     iClass: NODEClass;
     iOperator: TCANOperator;
 
-    pArg1, pArg2: PChar;
+    pArg1, pArg2: PAnsiChar;
     Arg1, Arg2: variant;
     tstr: string;
 
@@ -9464,8 +9503,8 @@ var
                     Result := false;
                     exit;
                   end;
-                pArg1 := pChar (VarToStr (Arg1));
-                pArg2 := pChar (VarToStr (Arg2));
+                pArg1 := pAnsiChar (AnsiString(VarToStr (Arg1)));
+                pArg2 := pAnsiChar (AnsiString(VarToStr (Arg2)));
                 b := MatchesMask (pArg1, pArg2);
                 Result := Variant (b);
                 exit;
@@ -9521,8 +9560,8 @@ var
 
             coLIKE:
               begin
-                pArg1 := pChar (VarToStr (ParseNode (pfdStart, pArg1)));
-                pArg2 := pChar (VarToStr (ParseNode (pfdStart, pArg2)));
+                pArg1 := pAnsiChar (AnsiString(VarToStr (ParseNode (pfdStart, pArg1))));
+                pArg2 := pAnsiChar (AnsiString(VarToStr (ParseNode (pfdStart, pArg2))));
                 b := MatchesMask (pArg1, pArg2);
                 Result := Variant (b);
                 exit;
@@ -9541,7 +9580,7 @@ var
               begin
                 pArg1 := pfdStart;
                 inc (pArg1, iLiteralStart + PWord (@pfd [0])^);
-                pArg1 := pChar (AnsiUpperCase (pArg1)); // Function name
+                pArg1 := pAnsiChar (AnsiString(AnsiUpperCase (pArg1))); // Function name
                 pArg2 := pfdStart;
                 inc (pArg2, CANEXPRSIZE + PWord (@pfd [2])^);
                   // Pointer to Value or Const
@@ -9575,7 +9614,7 @@ var
 
                     Result := Arg2;
                     try
-                      pArg1 := pChar (VarToStr (Result [0]));
+                      pArg1 := pAnsiChar (AnsiString(VarToStr (Result [0])));
                     except
                       on EVariantError do // no Params for "SubString"
                         raise EMemTableError.CreateFmt (kbmInvMissParam,
@@ -9705,20 +9744,20 @@ var
                     if VarIsArray (Result) then
                       begin
                         try
-                          pArg1 := PChar (VarToStr (Result [0]));
-                          pArg2 := PChar (VarToStr (Result [1]));
+                          pArg1 := PAnsiChar (AnsiString(VarToStr (Result [0])));
+                          pArg2 := PAnsiChar (AnsiString(VarToStr (Result [1])));
                         except
                           on EVariantError do // no Params for DATE
                             raise EMemTableError.CreateFmt (kbmInvMissParam,
                               [pArg1]);
                         end;
 
-                        tstr := ShortDateFormat;
+                        tstr := {$IFDEF LEVEL14}FormatSettings.{$ENDIF}ShortDateFormat;
                         try
-                          ShortDateFormat := pArg2;
+                          {$IFDEF LEVEL14}FormatSettings.{$ENDIF}ShortDateFormat := pArg2;
                           Result := StrToDate (pArg1);
                         finally
-                          ShortDateFormat := tstr;
+                          {$IFDEF LEVEL14}FormatSettings.{$ENDIF}ShortDateFormat := tstr;
                         end;
                       end
                     else
@@ -9732,20 +9771,20 @@ var
                     if VarIsArray (Result) then
                       begin
                         try
-                          pArg1 := PChar (VarToStr (Result [0]));
-                          pArg2 := PChar (VarToStr (Result [1]));
+                          pArg1 := PAnsiChar (AnsiString(VarToStr (Result [0])));
+                          pArg2 := PAnsiChar (AnsiString(VarToStr (Result [1])));
                         except
                           on EVariantError do // no Params for TIME
                             raise EMemTableError.CreateFmt (kbmInvMissParam,
                               [pArg1]);
                         end;
 
-                        tstr := ShortTimeFormat;
+                        tstr := {$IFDEF LEVEL14}FormatSettings.{$ENDIF}ShortTimeFormat;
                         try
-                          ShortTimeFormat := pArg2;
+                          {$IFDEF LEVEL14}FormatSettings.{$ENDIF}ShortTimeFormat := pArg2;
                           Result := StrToTime (pArg1);
                         finally
-                          ShortTimeFormat := tstr;
+                          {$IFDEF LEVEL14}FormatSettings.{$ENDIF}ShortTimeFormat := tstr;
                         end;
                       end
                     else
@@ -9809,7 +9848,7 @@ var
   end;
 
 var
-  pfdStart, pfd: PChar;
+  pfdStart, pfd: PAnsiChar;
 
 begin
   pfdStart := @FilterExpr.FilterData [0];
@@ -9935,8 +9974,13 @@ begin
   // Check if to recalc before compare.
   if FRecalcOnIndex then
     begin
-      ClearCalcFields (PChar (ARecord));
-      GetCalcFields (PChar (ARecord));
+      {$IFDEF LEVEL18}
+      ClearCalcFields (NativeInt (ARecord));
+      GetCalcFields (NativeInt (ARecord));
+      {$ELSE}
+      ClearCalcFields (TRecordBuffer (ARecord));
+      GetCalcFields (TRecordBuffer (ARecord));
+      {$ENDIF}
     end;
 
   // Check if range filtering.
@@ -10006,7 +10050,7 @@ begin
 end;
 {$ENDIF}
 
-procedure TkbmCustomMemTable.InternalSetToRecord (Buffer: PChar);
+procedure TkbmCustomMemTable.InternalSetToRecord (Buffer: TRecordBuffer);
 begin
   if Buffer = nil then
     exit;
@@ -10017,7 +10061,7 @@ function TkbmCustomMemTable.GetRecordCount: integer;
 var
   SaveState: TDataSetState;
   SavePosition: integer;
-  TempBuffer: PChar;
+  TempBuffer: TRecordBuffer;
 begin
   if not Active then
     DatabaseError (SDatasetClosed{$IFNDEF LEVEL3}, Self{$ENDIF});
@@ -10029,7 +10073,7 @@ begin
       Result := 0;
       SaveState := SetTempState (dsBrowse);
       SavePosition := FRecNo;
-      TempBuffer := PChar (FCommon._InternalAllocRecord);
+      TempBuffer := TRecordBuffer (FCommon._InternalAllocRecord);
       try
         InternalFirst;
         while GetRecord (TempBuffer, gmNext, True) = grOk do
@@ -10044,7 +10088,7 @@ end;
 
 function TkbmCustomMemTable.GetRecNo: integer;
 begin
-  if (State = dsInactive) or (ActiveBuffer = nil) or IsEmpty or (PkbMRecord
+  if (State = dsInactive) or (Pointer(ActiveBuffer) = nil) or IsEmpty or (PkbMRecord
     (ActiveBuffer)^.RecordNo < 0) then
     Result := -1
   else
@@ -10065,7 +10109,7 @@ begin
     end;
 end;
 
-procedure TkbmCustomMemTable.InternalAddRecord (Buffer: Pointer; Append:
+procedure TkbmCustomMemTable.InternalAddRecord (Buffer: {$IFDEF LEVEL16}TRecordBuffer{$ELSE}Pointer{$ENDIF}; Append:
   Boolean);
 var
   pRec, pCopyRec: PkbmRecord;
@@ -10129,7 +10173,7 @@ begin
   end;
 end;
 
-procedure TkbmCustomMemTable.InternalInitRecord (Buffer: PChar);
+procedure TkbmCustomMemTable.InternalInitRecord (Buffer: TRecordBuffer);
 begin
   // Clearout record contents.
   FCommon._InternalClearRecord (PkbmRecord (Buffer));
@@ -10199,7 +10243,7 @@ begin
 
         // Add to index.
         // If BOF bookmark flag set, then append, dont insert.
-        if GetBookmarkFlag (PChar (pNewRec)) = bfEOF then
+        if GetBookmarkFlag (TRecordBuffer (pNewRec)) = bfEOF then
           FCommon.ReflectToIndexes (self, mtiuhInsert, nil, pNewRec, -1)
         else
           FCommon.ReflectToIndexes (self, mtiuhInsert, nil, pNewRec,
@@ -10234,7 +10278,7 @@ end;
 
 // Bookmark handling.
 
-procedure TkbmCustomMemTable.SetBookmarkFlag (Buffer: PChar; Value:
+procedure TkbmCustomMemTable.SetBookmarkFlag (Buffer: TRecordBuffer; Value:
   TBookmarkFlag);
 var
   pbmData: PkbmBookmark;
@@ -10245,7 +10289,7 @@ begin
   pbmData^.Flag := Value;
 end;
 
-function TkbmCustomMemTable.GetBookmarkFlag (Buffer: PChar): TBookmarkFlag;
+function TkbmCustomMemTable.GetBookmarkFlag (Buffer: TRecordBuffer): TBookmarkFlag;
 var
   pbmData: PkbmBookmark;
 begin
@@ -10255,7 +10299,7 @@ begin
   Result := pbmData^.Flag;
 end;
 
-procedure TkbmCustomMemTable.GetBookmarkData (Buffer: PChar; Data: Pointer);
+procedure TkbmCustomMemTable.GetBookmarkData (Buffer: TRecordBuffer; Data: TBookmark);
 var
   pbmData: PkbmBookmark;
   pbmUser: PkbmUserBookmark;
@@ -10268,7 +10312,7 @@ begin
   pbmUser^.DataID := FCommon.FDataID;
 end;
 
-procedure TkbmCustomMemTable.SetBookmarkData (Buffer: PChar; Data: Pointer);
+procedure TkbmCustomMemTable.SetBookmarkData (Buffer: TRecordBuffer; Data: TBookmark);
 var
   pbmData: PkbmBookmark;
   pbmUser: PkbmUserBookmark;
@@ -10431,7 +10475,7 @@ end;
 
 procedure TkbmCustomMemTable.CloseBlob (Field: TField);
 var
-  pField: PChar;
+  pField: PAnsiChar;
   pBlob: PPkbmVarLength;
 begin
   if (FRecNo < 0) or (FRecNo >= FCurIndex.FReferences.Count) or (not (State in
@@ -10675,7 +10719,8 @@ function TkbmCustomMemTable.GetCommaText: string;
 var
   stream: TMemoryStream;
   sz: integer;
-  p: PChar;
+  p: PAnsiChar;
+  s: AnsiString;
 begin
   Result := '';
   stream := TMemoryStream.Create;
@@ -10684,7 +10729,12 @@ begin
     stream.Seek (0, soFromBeginning);
     sz := stream.Size;
     p := stream.Memory;
-    setstring (Result, p, sz);
+    setstring (s, p, sz);
+    {$IFDEF UNICODE}
+    Result := UnicodeString(s);
+    {$ELSE}
+    Result := s;
+    {$ENDIF}
   finally
     stream.free;
   end;
@@ -10898,7 +10948,7 @@ begin
     begin
       SetTempState (dsCalcFields);
       try
-        CalculateFields (PChar (FCurIndex.FReferences [n]));
+        CalculateFields ({$IFDEF LEVEL18}NativeInt{$ELSE}TRecordBuffer{$ENDIF} (FCurIndex.FReferences [n]));
         Result := FieldValues [ResultFields];
       finally
         RestoreState (dsBrowse);
