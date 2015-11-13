@@ -60,6 +60,30 @@
   {$endif}
 {$endif}
 
+{$IFDEF CONDITIONALEXPRESSIONS}
+  {$IF CompilerVersion >= 21}
+    {$define LEVEL4}
+    {$define LEVEL5}
+    {$define LEVEL6}
+    {$define LEVEL7}
+    {$define LEVEL8}
+    {$define LEVEL9}
+    {$define LEVEL10}
+    {$ifndef BCB}        // Delphi 6
+      {$define DELPHI}
+    {$else}              // Builder 6
+      {$undef DELPHI}	     // ( Ensure Delphi off )
+    {$endif}
+    {$DEFINE LEVEL14}
+  {$IFEND}
+  {$IF CompilerVersion >= 23}
+    {$DEFINE LEVEL16}
+  {$IFEND}
+  {$IF CompilerVersion >= 25}
+    {$DEFINE LEVEL18}
+  {$IFEND}
+{$ENDIF}
+
 {$ifdef LINUX}
   {$define CLX}
 {$endif}

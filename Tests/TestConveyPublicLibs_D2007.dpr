@@ -20,7 +20,8 @@ uses
   GUITestRunner,
   TextTestRunner,
   TestDeCAL in 'TestDeCAL.pas',
-  TestCnvStrUtils in 'TestCnvStrUtils.pas';
+  TestCnvStrUtils in 'TestCnvStrUtils.pas',
+  TestkbmMemTable in 'TestkbmMemTable.pas';
 
 {$R *.RES}
 
