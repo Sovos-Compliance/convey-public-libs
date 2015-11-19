@@ -38,8 +38,8 @@ type
 
 procedure GetAllIPs(IPs: TStrings);
 function GetFullyQualifiedDomainName : AnsiString;
-function GetComputerName: AnsiString;
-function GetUserName(const ANameFormat: integer = -1): AnsiString;
+function GetComputerName: string;
+function GetUserName(const ANameFormat: integer = -1): string;
 function GetWindowsDomain: string;
 function IsForegroundTask: Boolean;
 function GetProcessIDOfHInstance(AHInstance : Cardinal): Cardinal; // This FN doesn't seam to work on NT based systems. Don't use
@@ -107,7 +107,7 @@ begin
 end;
 
 // Delphi declares MAX_COMPUTERNAME_LENGTH as 15, but really it should be 16
-function GetComputerName: AnsiString;
+function GetComputerName: string;
 var lpBuffer: array[0..MAX_COMPUTERNAME_LENGTH + 1] of char;
     dwSize: DWORD;
 begin
@@ -119,7 +119,7 @@ begin
   Result:= StrPas(lpBuffer);
 end;
 
-function GetUserName(const ANameFormat: integer = -1): AnsiString;
+function GetUserName(const ANameFormat: integer = -1): string;
 var lpBuffer: array[0..MAX_PATH] of char;
     dwSize: DWORD;
 begin
