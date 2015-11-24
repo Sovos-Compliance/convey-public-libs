@@ -27,11 +27,15 @@ type
   private
     FDic: {$IFDEF HAS_GENERICS}TDictionary<string, TObject>{$ELSE}TStringHashTrie{$ENDIF};
     FUserEnumerateCallback: TCnvStringDictionaryEnumerateCallback;
+    {$IFDEF HAS_GENERICS}
+    FCaseSensitive: Boolean;
+    function PrepareKey(const AKey: string): string; inline;
+    {$ENDIF}
     {$IFNDEF HAS_GENERICS}
     procedure EnumerateCallback(UserData: Pointer; Value: PChar; Data: TObject; var Done: Boolean);
     {$ENDIF}
   public
-    constructor Create(AAutoFreeObjects: Boolean = false);
+    constructor Create(AAutoFreeObjects: Boolean = false; ACaseSensitive: Boolean = False);
     destructor Destroy; override;
     procedure AddOrSetValue(const AKey: string; const AValue: TObject); overload;
     procedure AddOrSetValue(const AKey: string; const AValue: string); overload;
@@ -186,7 +190,7 @@ uses
 
 { TCnvStringDictionary }
 
-constructor TCnvStringDictionary.Create(AAutoFreeObjects: Boolean);
+constructor TCnvStringDictionary.Create(AAutoFreeObjects: Boolean; ACaseSensitive: Boolean);
 {$IFDEF HAS_GENERICS}
 var
   ownerships: TDictionaryOwnerships;
@@ -198,9 +202,11 @@ begin
   else
     ownerships := [];
   FDic := TObjectDictionary<string, TObject>.Create(ownerships);
+  FCaseSensitive := ACaseSensitive;
 {$ELSE}
   FDic := TStringHashTrie.Create;
   FDic.AutoFreeObjects := AAutoFreeObjects;
+  FDic.CaseSensitive := ACaseSensitive;
 {$ENDIF}
 end;
 
@@ -215,6 +221,16 @@ procedure TCnvStringDictionary.EnumerateCallback(UserData: Pointer;
   Value: PChar; Data: TObject; var Done: Boolean);
 begin
   FUserEnumerateCallback(Value, Data, UserData);
+end;
+{$ENDIF}
+
+{$IFDEF HAS_GENERICS}
+function TCnvStringDictionary.PrepareKey(const AKey: string): string;
+begin
+  if not FCaseSensitive then
+    Result := UpperCase(AKey)
+  else
+    Result := AKey;
 end;
 {$ENDIF}
 
@@ -238,7 +254,7 @@ procedure TCnvStringDictionary.AddOrSetValue(const AKey: string;
   const AValue: TObject);
 begin
 {$IFDEF HAS_GENERICS}
-  FDic.AddOrSetValue(AKey, AValue);
+  FDic.AddOrSetValue(PrepareKey(AKey), AValue);
 {$ELSE}
   FDic.Add(AKey, AValue);
 {$ENDIF}
@@ -300,7 +316,7 @@ end;
 procedure TCnvStringDictionary.Remove(const AKey: string);
 begin
 {$IFDEF HAS_GENERICS}
-  FDic.Remove(AKey);
+  FDic.Remove(PrepareKey(AKey));
 {$ELSE}
   FDic.Delete(AKey);
 {$ENDIF}
@@ -310,7 +326,7 @@ function TCnvStringDictionary.TryGetValue(const AKey: string; out AValue:
     TObject): Boolean;
 begin
 {$IFDEF HAS_GENERICS}
-  Result := FDic.TryGetValue(AKey, AValue);
+  Result := FDic.TryGetValue(PrepareKey(AKey), AValue);
 {$ELSE}
   Result := FDic.Find(AKey, AValue);
 {$ENDIF}
