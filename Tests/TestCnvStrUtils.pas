@@ -31,7 +31,10 @@ type
     procedure _DeleteFromArray;
     procedure _ExtractValue;
     procedure _ExtractName;
+    procedure _ExtractValue2;
+    procedure _ExtractName2;
     procedure _SplitNameAndValue;
+    procedure _SplitNameAndValue2;
     procedure _ConvertToMixedCaseString;
     procedure _CnvWrapText;
     procedure _CnvSimpleWrapText;
@@ -188,9 +191,19 @@ begin
   CheckEquals('name', ExtractName('name=value'));
 end;
 
+procedure TestCnvStrUtilsUnit._ExtractName2;
+begin
+  CheckEquals('name', ExtractName('name:value', ':'));
+end;
+
 procedure TestCnvStrUtilsUnit._ExtractValue;
 begin
   CheckEquals('value', ExtractValue('name=value'));
+end;
+
+procedure TestCnvStrUtilsUnit._ExtractValue2;
+begin
+  CheckEquals('value', ExtractValue('name:value', ':'));
 end;
 
 procedure TestCnvStrUtilsUnit._FirstNonEmptyString;
@@ -210,7 +223,7 @@ end;
 
 procedure TestCnvStrUtilsUnit._HexToInt;
 begin
-  CheckEquals($ABC123, HexToInt('ABC123')); 
+  CheckEquals($ABC123, HexToInt('ABC123'));
 end;
 
 procedure TestCnvStrUtilsUnit._HexToString;
@@ -335,6 +348,15 @@ var
   AName, AValue : string;
 begin
   CheckTrue(SplitNameAndValue('name=value', AName, AValue));
+  CheckEquals('name', AName);
+  CheckEquals('value', AValue);
+end;
+
+procedure TestCnvStrUtilsUnit._SplitNameAndValue2;
+var
+  AName, AValue : string;
+begin
+  CheckTrue(SplitNameAndValue('name:value', AName, AValue, ':'));
   CheckEquals('name', AName);
   CheckEquals('value', AValue);
 end;
