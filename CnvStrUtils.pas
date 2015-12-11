@@ -48,10 +48,13 @@ function AddStrings(const Items, Items2 : array of string): String; overload;
 function IndexOf(const Items : array of string; const Item : String;
     CaseSensitive : boolean = false): Integer;
 procedure DeleteFromArray(var Items: TStringArray; AElementIndex: integer);
-function ExtractValue(const s : string; const AEq : string = '='): string;
-function ExtractName(const s : string; const AEq : string = '='): string;
+function ExtractValue(const s : string): string; overload;
+function ExtractName(const s : string): string; overload;
+function SplitNameAndValue(const s : string; var AName, AValue : string): Boolean; overload;
+function ExtractValue(const s, AEq : string): string; overload;
+function ExtractName(const s, AEq : string): string; overload;
 function SplitNameAndValue(const s : string; var AName, AValue : string;
-    const AEq : string = '='): Boolean;
+    const AEq : string): Boolean; overload;
 function ConvertToMixedCaseString(const s : string): string;
 function CnvWrapText(const Line, BreakStr: string; MaxWidth: Integer; Canvas :
     TCanvas): string;
@@ -398,7 +401,24 @@ begin
     end;
 end;
 
-function ExtractValue(const s : string; const AEq : string = '='): string;
+function ExtractValue(const s : string): string;
+begin
+  Result := ExtractValue(s, '=');
+end;
+
+function ExtractName(const s : string): string;
+begin
+  Result := ExtractName(s, '=');
+end;
+
+function SplitNameAndValue(const s : string; var AName, AValue : string): Boolean;
+var
+  p : Integer;
+begin
+  Result := SplitNameAndValue(s, AName, AValue, '=');
+end;
+
+function ExtractValue(const s, AEq : string): string;
 var
   p : Integer;
 begin
@@ -408,7 +428,7 @@ begin
     else Result := '';
 end;
 
-function ExtractName(const s : string; const AEq : string = '='): string;
+function ExtractName(const s, AEq : string): string;
 var
   p : Integer;
 begin
@@ -419,7 +439,7 @@ begin
 end;
 
 function SplitNameAndValue(const s : string; var AName, AValue : string;
-    const AEq : string = '='): Boolean;
+    const AEq : string): Boolean;
 var
   p : Integer;
 begin
