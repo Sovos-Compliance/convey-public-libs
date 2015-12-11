@@ -419,8 +419,7 @@ begin
 end;
 
 function SplitNameAndValue(const s : string; var AName, AValue : string;
-    const AEq : string = '='):
-    Boolean;
+    const AEq : string = '='): Boolean;
 var
   p : Integer;
 begin
