@@ -48,9 +48,10 @@ function AddStrings(const Items, Items2 : array of string): String; overload;
 function IndexOf(const Items : array of string; const Item : String;
     CaseSensitive : boolean = false): Integer;
 procedure DeleteFromArray(var Items: TStringArray; AElementIndex: integer);
-function ExtractValue(const s : string): string;
-function ExtractName(const s : string): string;
-function SplitNameAndValue(const s : string; var AName, AValue : string): Boolean;
+function ExtractValue(const s : string; const AEq : string = '='): string;
+function ExtractName(const s : string; const AEq : string = '='): string;
+function SplitNameAndValue(const s : string; var AName, AValue : string;
+    const AEq : string = '='): Boolean;
 function ConvertToMixedCaseString(const s : string): string;
 function CnvWrapText(const Line, BreakStr: string; MaxWidth: Integer; Canvas :
     TCanvas): string;
@@ -397,32 +398,33 @@ begin
     end;
 end;
 
-function ExtractValue(const s : string): string;
+function ExtractValue(const s : string; const AEq : string = '='): string;
 var
   p : Integer;
 begin
-  p := Pos ('=', s);
+  p := Pos (AEq, s);
   if p > 0
     then Result := system.Copy (s, p + 1, Length (s) - p)
     else Result := '';
 end;
 
-function ExtractName(const s : string): string;
+function ExtractName(const s : string; const AEq : string = '='): string;
 var
   p : Integer;
 begin
-  p := Pos ('=', s);
+  p := Pos (AEq, s);
   if p > 0
     then Result := system.Copy (s, 1, p - 1)
     else Result := s;
 end;
 
-function SplitNameAndValue(const s : string; var AName, AValue : string):
+function SplitNameAndValue(const s : string; var AName, AValue : string;
+    const AEq : string = '='):
     Boolean;
 var
   p : Integer;
 begin
-  p := Pos ('=', s);
+  p := Pos (AEq, s);
   if p > 0
     then
     begin
