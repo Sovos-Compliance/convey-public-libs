@@ -412,8 +412,8 @@ begin
 end;
 
 function SplitNameAndValue(const s : string; var AName, AValue : string): Boolean;
-var
-  p : Integer;
+//var
+//  p : Integer;
 begin
   Result := SplitNameAndValue(s, AName, AValue, '=');
 end;
