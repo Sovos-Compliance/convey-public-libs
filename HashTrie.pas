@@ -67,7 +67,7 @@ constructor TStringHashTrie.Create;
 begin
   inherited Create;
   AutoFreeValueMode := afmFree;
-  DuplicatesMode := dmNotAllow;
+  DuplicatesMode := dmAllowed;
   CaseSensitive := False;
 end;
 
@@ -138,7 +138,7 @@ constructor TIntegerHashTrie.Create;
 begin
   inherited Create;
   AutoFreeValueMode := afmFree;
-  DuplicatesMode := dmReplaceExisting;
+  DuplicatesMode := dmAllowed;
 end;
 
 function TIntegerHashTrie.Add(Key : Integer): Boolean;
