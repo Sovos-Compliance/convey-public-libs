@@ -3,50 +3,58 @@ unit HashTrie;
 interface
 
 uses
-  IntegerHashTrie, StringHashTrie;
+  Hash_Trie, IntegerHashTrie, StringHashTrie;
 
 type
   TStrHashTraverseProc = StringHashTrie.TStrHashTraverseProc;
   TStrHashTraverseMeth = StringHashTrie.TStrHashTraverseMeth;
 
-  TStringHashTrie = class(StringHashTrie.TStringHashTrie)
+  THashTrie = class
   private
     function GetAutoFreeObjects: Boolean;
-    function GetCaseSensitive: Boolean;
+    function GetDuplicatesMode: TDuplicatesMode;
     function GetRootInitialized: Boolean;
     procedure SetAutoFreeObjects(const Value: Boolean);
+    procedure SetDuplicatesMode(const Value: TDuplicatesMode);
+  protected
+    FHashTrie : Hash_Trie.THashTrie;
+  public
+    destructor Destroy; override;
+    procedure Clear;
+    property AutoFreeObjects: Boolean read GetAutoFreeObjects write SetAutoFreeObjects;
+    property DuplicatesMode: TDuplicatesMode read GetDuplicatesMode write SetDuplicatesMode;
+    property RootInitialized: Boolean read GetRootInitialized;
+  end;
+
+  TStringHashTrie = class(THashTrie)
+  private
+    function GetCaseSensitive: Boolean;
     procedure SetCaseSensitive(const Value: Boolean);
   public
     constructor Create;
-    function Add(const Key : String): Boolean; overload;
     function Add(const Key : String; Value : TObject): Boolean; overload;
+    function Add(const Key: String): Boolean; overload;
     function Delete(const Key: String): Boolean;
-    function Find(const Key : string): Boolean; overload;
     function Find(const Key : string; var Value : TObject): Boolean; overload;
-    procedure Clear;
-    property AutoFreeObjects: Boolean read GetAutoFreeObjects write SetAutoFreeObjects;
+    function Find(const Key : string): Boolean; overload;
+    procedure Traverse(UserData: Pointer; UserProc: TStrHashTraverseProc); overload;
+    procedure Traverse(UserData: Pointer; UserProc: TStrHashTraverseMeth); overload;
     property CaseSensitive: Boolean read GetCaseSensitive write SetCaseSensitive default False;
-    property RootInitialized: Boolean read GetRootInitialized;
   end;
 
   TIntHashTraverseProc = IntegerHashTrie.TIntHashTraverseProc;
   TIntHashTraverseMeth = IntegerHashTrie.TIntHashTraverseMeth;
 
-  TIntegerHashTrie = class(IntegerHashTrie.TIntegerHashTrie)
-  private
-    function GetAutoFreeObjects: Boolean;
-    function GetRootInitialized: Boolean;
-    procedure SetAutoFreeObjects(const Value: Boolean);
+  TIntegerHashTrie = class(THashTrie)
   public
     constructor Create;
-    function Add(Key : Integer): Boolean; overload;
     function Add(Key : Integer; Value : TObject): Boolean; overload;
-    procedure Clear;
+    function Add(Key : Integer): Boolean; overload;
     function Delete(Key: Integer): Boolean;
-    function Find(Key: integer): Boolean; overload;
     function Find(Key: integer; var Value: TObject): Boolean; overload;
-    property AutoFreeObjects: Boolean read GetAutoFreeObjects write SetAutoFreeObjects;
-    property RootInitialized: Boolean read GetRootInitialized;
+    function Find(Key: integer): Boolean; overload;
+    procedure Traverse(UserData: Pointer; UserProc: TIntHashTraverseMeth); overload;
+    procedure Traverse(UserData: Pointer; UserProc: TIntHashTraverseProc); overload;
   end;
 
 function SuperFastHash(data: PAnsiChar; Len: Cardinal; AUpper: Boolean): Cardinal;
@@ -54,11 +62,49 @@ function SuperFastHash(data: PAnsiChar; Len: Cardinal; AUpper: Boolean): Cardina
 implementation
 
 uses
-  Hash_Trie, uSuperFastHash;
+  uSuperFastHash;
 
 function SuperFastHash(data: PAnsiChar; Len: Cardinal; AUpper: Boolean): Cardinal;
 begin
   Result := uSuperFastHash.SuperFastHash(data, Len, AUpper);
+end;
+
+destructor THashTrie.Destroy;
+begin
+  FHashTrie.Free;
+  inherited;
+end;
+
+procedure THashTrie.Clear;
+begin
+  FHashTrie.Clear;
+end;
+
+{ THashTrie }
+
+function THashTrie.GetAutoFreeObjects: Boolean;
+begin
+  Result := FHashTrie.AutoFreeValue;
+end;
+
+function THashTrie.GetDuplicatesMode: TDuplicatesMode;
+begin
+  Result := FHashTrie.DuplicatesMode;
+end;
+
+function THashTrie.GetRootInitialized: Boolean;
+begin
+  Result := FHashTrie.Count > 0;
+end;
+
+procedure THashTrie.SetAutoFreeObjects(const Value: Boolean);
+begin
+  FHashTrie.AutoFreeValue := Value;
+end;
+
+procedure THashTrie.SetDuplicatesMode(const Value: TDuplicatesMode);
+begin
+  FHashTrie.DuplicatesMode := Value;
 end;
 
 { TStringHashTrie }
@@ -66,70 +112,59 @@ end;
 constructor TStringHashTrie.Create;
 begin
   inherited Create;
-  AutoFreeValueMode := afmFree;
-  DuplicatesMode := dmReplaceExisting;
+  FHashTrie := StringHashTrie.TStringHashTrie.Create;
+  FHashTrie.AutoFreeValueMode := afmFree;
+  FHashTrie.DuplicatesMode := dmReplaceExisting;
   CaseSensitive := False;
-end;
-
-function TStringHashTrie.Add(const Key : String): Boolean;
-begin
-  Result := inherited Add(Key, nil);
 end;
 
 function TStringHashTrie.Add(const Key : String; Value : TObject): Boolean;
 begin
-  Result := inherited Add(Key, Value);
+  Result := StringHashTrie.TStringHashTrie(FHashTrie).Add(Key, Value);
 end;
 
-procedure TStringHashTrie.Clear;
+function TStringHashTrie.Add(const Key: String): Boolean;
 begin
-  inherited Clear;
+  Result := StringHashTrie.TStringHashTrie(FHashTrie).Add(Key);
 end;
 
 function TStringHashTrie.Delete(const Key: String): Boolean;
 begin
-  Result := Remove(Key);
-end;
-
-function TStringHashTrie.Find(const Key : string): Boolean;
-var
-  Dummy : Pointer;
-begin
-  Result := inherited Find(Key, Dummy);
+  Result := StringHashTrie.TStringHashTrie(FHashTrie).Remove(Key);
 end;
 
 function TStringHashTrie.Find(const Key : string; var Value : TObject): Boolean;
 var
   TmpValue : Pointer;
 begin
-  Result := inherited Find(Key, TmpValue);
+  Result := StringHashTrie.TStringHashTrie(FHashTrie).Find(Key, TmpValue);
   if Result then
     Value := TmpValue;
 end;
 
-function TStringHashTrie.GetAutoFreeObjects: Boolean;
+function TStringHashTrie.Find(const Key : string): Boolean;
 begin
-  Result := AutoFreeValue;
+  Result := StringHashTrie.TStringHashTrie(FHashTrie).Find(Key);
 end;
 
 function TStringHashTrie.GetCaseSensitive: Boolean;
 begin
-  Result := not CaseInsensitive;
-end;
-
-function TStringHashTrie.GetRootInitialized: Boolean;
-begin
-  Result := Count > 0;
-end;
-
-procedure TStringHashTrie.SetAutoFreeObjects(const Value: Boolean);
-begin
-  AutoFreeValue := Value;
+  Result := not StringHashTrie.TStringHashTrie(FHashTrie).CaseInsensitive;
 end;
 
 procedure TStringHashTrie.SetCaseSensitive(const Value: Boolean);
 begin
-  CaseInsensitive := not Value;
+  StringHashTrie.TStringHashTrie(FHashTrie).CaseInsensitive := not Value;
+end;
+
+procedure TStringHashTrie.Traverse(UserData: Pointer; UserProc: TStrHashTraverseMeth);
+begin
+  StringHashTrie.TStringHashTrie(FHashTrie).Traverse(UserData, UserProc);
+end;
+
+procedure TStringHashTrie.Traverse(UserData: Pointer; UserProc: TStrHashTraverseProc);
+begin
+  StringHashTrie.TStringHashTrie(FHashTrie).Traverse(UserData, UserProc);
 end;
 
 { TIntegerHashTrie }
@@ -137,59 +172,48 @@ end;
 constructor TIntegerHashTrie.Create;
 begin
   inherited Create;
-  AutoFreeValueMode := afmFree;
-  DuplicatesMode := dmReplaceExisting;
-end;
-
-function TIntegerHashTrie.Add(Key : Integer): Boolean;
-begin
-  Result := inherited Add(Cardinal(Key), nil);
+  FHashTrie := IntegerHashTrie.TIntegerHashTrie.Create;
+  FHashTrie.AutoFreeValueMode := afmFree;
+  FHashTrie.DuplicatesMode := dmReplaceExisting;
 end;
 
 function TIntegerHashTrie.Add(Key : Integer; Value : TObject): Boolean;
 begin
-  Result := inherited Add(Cardinal(Key), Value);
+  Result := IntegerHashTrie.TIntegerHashTrie(FHashTrie).Add(Cardinal(Key), Value);
 end;
 
-procedure TIntegerHashTrie.Clear;
+function TIntegerHashTrie.Add(Key : Integer): Boolean;
 begin
-  inherited Clear;
+  Result := IntegerHashTrie.TIntegerHashTrie(FHashTrie).Add(Cardinal(Key));
 end;
 
 function TIntegerHashTrie.Delete(Key: Integer): Boolean;
 begin
-  Result := Remove(Cardinal(Key));
-end;
-
-function TIntegerHashTrie.Find(Key: integer): Boolean;
-var
-  Dummy : Pointer;
-begin
-  Result := inherited Find(Cardinal(Key), Dummy);
+  Result := IntegerHashTrie.TIntegerHashTrie(FHashTrie).Remove(Cardinal(Key));
 end;
 
 function TIntegerHashTrie.Find(Key: integer; var Value: TObject): Boolean;
 var
   TmpValue : Pointer;
 begin
-  Result := inherited Find(Cardinal(Key), TmpValue);
+  Result := IntegerHashTrie.TIntegerHashTrie(FHashTrie).Find(Cardinal(Key), TmpValue);
   if Result then
     Value := TmpValue;
 end;
 
-function TIntegerHashTrie.GetAutoFreeObjects: Boolean;
+function TIntegerHashTrie.Find(Key: integer): Boolean;
 begin
-  Result := AutoFreeValue;
+  Result := IntegerHashTrie.TIntegerHashTrie(FHashTrie).Find(Cardinal(Key));
 end;
 
-function TIntegerHashTrie.GetRootInitialized: Boolean;
+procedure TIntegerHashTrie.Traverse(UserData: Pointer; UserProc: TIntHashTraverseMeth);
 begin
-  Result := Count > 0;
+  IntegerHashTrie.TIntegerHashTrie(FHashTrie).Traverse(UserData, UserProc);
 end;
 
-procedure TIntegerHashTrie.SetAutoFreeObjects(const Value: Boolean);
+procedure TIntegerHashTrie.Traverse(UserData: Pointer; UserProc: TIntHashTraverseProc);
 begin
-  AutoFreeValue := Value;
+  IntegerHashTrie.TIntegerHashTrie(FHashTrie).Traverse(UserData, UserProc);
 end;
 
 end.
