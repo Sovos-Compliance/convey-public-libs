@@ -37,7 +37,7 @@ type
   TContainerDataHandler = class (TInterfacedObject, IDataHandler)
   private
     FAutoFreeObjects: Boolean;
-    procedure CheckContext(AContext: Pointer);
+    procedure CheckContext(AContext: Pointer); inline;
   protected
     procedure CleanData(AContext: Pointer); virtual;
     function CheckType(AContext: Pointer; AType: Byte): Byte; virtual;
@@ -94,28 +94,24 @@ uses
   SysUtils
   {$IFDEF UNICODE},AnsiStrings{$ENDIF};
 
-// START resource string wizard section
-resourcestring
-  SAContextShouldBeNil = 'AContext should be <> nil';
-  STryingToAccessObjectPointedByCon = 'Trying to access object pointed by context using wrong access method';
-
-// END resource string wizard section
-
-
 procedure TContainerDataHandler.CheckContext(AContext: Pointer);
+const
+  SAContextShouldBeNil = 'AContext should be <> nil';
 begin
   if AContext = nil then
     raise EContainer.Create (SAContextShouldBeNil);
 end;
 
 function TContainerDataHandler.CheckType(AContext: Pointer; AType: Byte): Byte;
+const
+  STryingToAccessObjectPointedByCon = 'Trying to access object pointed by context using wrong access method';
 begin
   CheckContext (AContext);
-  if (PContainerData (AContext).VType <> AType) and
-     ((PContainerData (AContext).VType <> vtSmallAnsiString) or (AType <> vtAnsiString)) and
-     ((PContainerData (AContext).VType <> vtSmallAnsiString) or (AType <> vtString)) then
-    raise EContainer.Create (STryingToAccessObjectPointedByCon);
   Result := PContainerData (AContext).VType;
+  if (Result <> AType) and
+     ((Result <> vtSmallAnsiString) or (AType <> vtAnsiString)) and
+     ((Result <> vtSmallAnsiString) or (AType <> vtString)) then
+    raise EContainer.Create (STryingToAccessObjectPointedByCon);
 end;
 
 procedure TContainerDataHandler.CleanData(AContext: Pointer);
