@@ -31,6 +31,7 @@ type
   public
     constructor Create; overload;
     constructor Create(AUseHashTable : Boolean); overload;
+    constructor Create(HashSize : Byte; AUseHashTable : Boolean); overload;
     function Add(const Key : String; Value : TObject): Boolean; overload;
     function Add(const Key: String): Boolean; overload;
     function Delete(const Key: String): Boolean;
@@ -107,7 +108,13 @@ end;
 constructor TStringHashTrie.Create(AUseHashTable : Boolean);
 begin
   inherited Create;
-  Init(20, True);
+  Init(20, AUseHashTable);
+end;
+
+constructor TStringHashTrie.Create(HashSize : Byte; AUseHashTable : Boolean);
+begin
+  inherited Create;
+  Init(HashSize, AUseHashTable);
 end;
 
 function TStringHashTrie.Add(const Key : String; Value : TObject): Boolean;
