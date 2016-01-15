@@ -12,26 +12,25 @@ type
   THashTrie = class
   private
     function GetAutoFreeObjects: Boolean;
-    function GetDuplicatesMode: TDuplicatesMode;
     function GetRootInitialized: Boolean;
     procedure SetAutoFreeObjects(const Value: Boolean);
-    procedure SetDuplicatesMode(const Value: TDuplicatesMode);
   protected
     FHashTrie : Hash_Trie.THashTrie;
   public
     destructor Destroy; override;
     procedure Clear;
     property AutoFreeObjects: Boolean read GetAutoFreeObjects write SetAutoFreeObjects;
-    property DuplicatesMode: TDuplicatesMode read GetDuplicatesMode write SetDuplicatesMode;
     property RootInitialized: Boolean read GetRootInitialized;
   end;
 
   TStringHashTrie = class(THashTrie)
   private
     function GetCaseSensitive: Boolean;
+    procedure Init(AHashSize: Byte; AUseHashTable: Boolean);
     procedure SetCaseSensitive(const Value: Boolean);
   public
-    constructor Create;
+    constructor Create; overload;
+    constructor Create(AUseHashTable : Boolean); overload;
     function Add(const Key : String; Value : TObject): Boolean; overload;
     function Add(const Key: String): Boolean; overload;
     function Delete(const Key: String): Boolean;
@@ -87,11 +86,6 @@ begin
   Result := FHashTrie.AutoFreeValue;
 end;
 
-function THashTrie.GetDuplicatesMode: TDuplicatesMode;
-begin
-  Result := FHashTrie.DuplicatesMode;
-end;
-
 function THashTrie.GetRootInitialized: Boolean;
 begin
   Result := FHashTrie.Count > 0;
@@ -102,20 +96,18 @@ begin
   FHashTrie.AutoFreeValue := Value;
 end;
 
-procedure THashTrie.SetDuplicatesMode(const Value: TDuplicatesMode);
-begin
-  FHashTrie.DuplicatesMode := Value;
-end;
-
 { TStringHashTrie }
   
 constructor TStringHashTrie.Create;
 begin
   inherited Create;
-  FHashTrie := StringHashTrie.TStringHashTrie.Create;
-  FHashTrie.AutoFreeValueMode := afmFree;
-  FHashTrie.DuplicatesMode := dmReplaceExisting;
-  CaseSensitive := False;
+  Init(16, False);
+end;
+
+constructor TStringHashTrie.Create(AUseHashTable : Boolean);
+begin
+  inherited Create;
+  Init(20, True);
 end;
 
 function TStringHashTrie.Add(const Key : String; Value : TObject): Boolean;
@@ -152,6 +144,13 @@ begin
   Result := not StringHashTrie.TStringHashTrie(FHashTrie).CaseInsensitive;
 end;
 
+procedure TStringHashTrie.Init(AHashSize: Byte; AUseHashTable: Boolean);
+begin
+  FHashTrie := StringHashTrie.TStringHashTrie.Create(AHashSize, AUseHashTable);
+  FHashTrie.AutoFreeValueMode := afmFree;
+  CaseSensitive := False;
+end;
+
 procedure TStringHashTrie.SetCaseSensitive(const Value: Boolean);
 begin
   StringHashTrie.TStringHashTrie(FHashTrie).CaseInsensitive := not Value;
@@ -174,7 +173,6 @@ begin
   inherited Create;
   FHashTrie := IntegerHashTrie.TIntegerHashTrie.Create;
   FHashTrie.AutoFreeValueMode := afmFree;
-  FHashTrie.DuplicatesMode := dmReplaceExisting;
 end;
 
 function TIntegerHashTrie.Add(Key : Integer; Value : TObject): Boolean;
