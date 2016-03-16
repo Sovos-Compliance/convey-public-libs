@@ -37,54 +37,54 @@ type
   TContainerDataHandler = class (TInterfacedObject, IDataHandler)
   private
     FAutoFreeObjects: Boolean;
-    procedure CheckContext(AContext: Pointer);
+    procedure CheckContext(AContext: Pointer); inline;
   protected
-    procedure CleanData(AContext: Pointer); virtual;
-    function CheckType(AContext: Pointer; AType: Byte): Byte; virtual;
-    function GetAsAnsiChar(AContext: Pointer): AnsiChar; virtual;
-    function GetAsAnsiString(AContext: Pointer): AnsiString; virtual;
-    function GetAsBoolean(AContext: Pointer): Boolean; virtual;
-    function GetAsCurrency(AContext: Pointer): Currency; virtual;
-    function GetAsExtended(AContext: Pointer): Extended; virtual;
-    function GetAsInt64(AContext: Pointer): Int64; virtual;
-    function GetAsInteger(AContext: Pointer): integer; virtual;
-    function GetAsInterface(AContext: Pointer): IUnknown; virtual;
-    function GetAsObject(AContext: Pointer): TObject; virtual;
-    function GetAsPointer(AContext: Pointer): Pointer; virtual;
-    function GetAsShortString(AContext: Pointer): ShortString; virtual;
-    function GetAsWideChar(AContext: Pointer): WideChar; virtual;
-    function GetAsWideString(AContext: Pointer): WideString; virtual;
+    procedure CleanData(AContext: Pointer);
+    function CheckType(AContext: Pointer; AType: Byte): Byte; inline;
+    function GetAsAnsiChar(AContext: Pointer): AnsiChar; inline;
+    function GetAsAnsiString(AContext: Pointer): AnsiString; inline;
+    function GetAsBoolean(AContext: Pointer): Boolean; inline;
+    function GetAsCurrency(AContext: Pointer): Currency;
+    function GetAsExtended(AContext: Pointer): Extended;
+    function GetAsInt64(AContext: Pointer): Int64;
+    function GetAsInteger(AContext: Pointer): integer; inline;
+    function GetAsInterface(AContext: Pointer): IUnknown; inline;
+    function GetAsObject(AContext: Pointer): TObject; inline;
+    function GetAsPointer(AContext: Pointer): Pointer; inline;
+    function GetAsShortString(AContext: Pointer): ShortString; inline;
+    function GetAsWideChar(AContext: Pointer): WideChar; inline;
+    function GetAsWideString(AContext: Pointer): WideString; inline;
 
-    procedure SetAnsiChar(AContext: Pointer; Value : AnsiChar); virtual;
-    procedure SetAnsiString(AContext: Pointer; const Value : AnsiString); virtual;
-    procedure SetBoolean(AContext: Pointer; Value : Boolean); virtual;
-    procedure SetCurrency(AContext: Pointer; const Value : Currency); virtual;
-    procedure SetExtended(AContext: Pointer; const Value : Extended); virtual;
-    procedure SetInt64(AContext: Pointer; const Value : Int64); virtual;
-    procedure SetInteger(AContext: Pointer; Value : integer); virtual;
-    procedure SetInterface(AContext: Pointer; Value : IUnknown); virtual;
-    procedure SetObject(AContext: Pointer; Value : TObject); virtual;
-    procedure SetPointer(AContext: Pointer; Value : Pointer); virtual;
-    procedure SetShortString(AContext: Pointer; const Value : ShortString); virtual;
-    procedure SetWideChar(AContext: Pointer; Value : WideChar); virtual;
-    procedure SetWideString(AContext: Pointer; const Value : WideString); virtual;
+    procedure SetAnsiChar(AContext: Pointer; Value : AnsiChar);
+    procedure SetAnsiString(AContext: Pointer; const Value : AnsiString);
+    procedure SetBoolean(AContext: Pointer; Value : Boolean);
+    procedure SetCurrency(AContext: Pointer; const Value : Currency);
+    procedure SetExtended(AContext: Pointer; const Value : Extended);
+    procedure SetInt64(AContext: Pointer; const Value : Int64);
+    procedure SetInteger(AContext: Pointer; Value : integer);
+    procedure SetInterface(AContext: Pointer; Value : IUnknown);
+    procedure SetObject(AContext: Pointer; Value : TObject);
+    procedure SetPointer(AContext: Pointer; Value : Pointer);
+    procedure SetShortString(AContext: Pointer; const Value : ShortString);
+    procedure SetWideChar(AContext: Pointer; Value : WideChar);
+    procedure SetWideString(AContext: Pointer; const Value : WideString);
 
-    function Compare(AContext : Pointer; Value : integer): integer; overload; virtual;
-    function Compare(AContext : Pointer; Value : Pointer): integer; overload; virtual;
-    function Compare(AContext : Pointer; Value : TObject): integer; overload; virtual;
-    function Compare(AContext : Pointer; Value : AnsiChar): integer; overload; virtual;
-    function Compare(AContext : Pointer; Value : Boolean): integer; overload; virtual;
-    function Compare(AContext : Pointer; const Value : Currency): integer; overload; virtual;
-    function Compare(AContext : Pointer; const Value : Extended): integer; overload; virtual;
-    function Compare(AContext : Pointer; const Value : Int64): integer; overload; virtual;
-    function Compare(AContext : Pointer; Value : IUnknown): integer; overload; virtual;
-    function Compare(AContext : Pointer; Value : WideChar): integer; overload; virtual;
-    function CompareAnsiString(AContext : Pointer; const Value : AnsiString): integer; virtual;
-    function CompareShortString(AContext: Pointer; const Value: ShortString): integer; virtual;
-    function CompareWideString(AContext : Pointer; const Value : WideString): integer; virtual;
+    function Compare(AContext : Pointer; Value : integer): integer; overload;
+    function Compare(AContext : Pointer; Value : Pointer): integer; overload;
+    function Compare(AContext : Pointer; Value : TObject): integer; overload;
+    function Compare(AContext : Pointer; Value : AnsiChar): integer; overload;
+    function Compare(AContext : Pointer; Value : Boolean): integer; overload;
+    function Compare(AContext : Pointer; const Value : Currency): integer; overload;
+    function Compare(AContext : Pointer; const Value : Extended): integer; overload;
+    function Compare(AContext : Pointer; const Value : Int64): integer; overload;
+    function Compare(AContext : Pointer; Value : IUnknown): integer; overload;
+    function Compare(AContext : Pointer; Value : WideChar): integer; overload;
+    function CompareAnsiString(AContext : Pointer; const Value : AnsiString): integer;
+    function CompareShortString(AContext: Pointer; const Value: ShortString): integer;
+    function CompareWideString(AContext : Pointer; const Value : WideString): integer;
     function GetAutoFreeObjects: Boolean;
 
-    function GetType(AContext: Pointer): Byte; virtual;
+    function GetType(AContext: Pointer): Byte;
     procedure SetAutoFreeObjects(Value: Boolean);
   end;
 
@@ -94,28 +94,24 @@ uses
   SysUtils
   {$IFDEF UNICODE},AnsiStrings{$ENDIF};
 
-// START resource string wizard section
-resourcestring
-  SAContextShouldBeNil = 'AContext should be <> nil';
-  STryingToAccessObjectPointedByCon = 'Trying to access object pointed by context using wrong access method';
-
-// END resource string wizard section
-
-
 procedure TContainerDataHandler.CheckContext(AContext: Pointer);
+const
+  SAContextShouldBeNil = 'AContext should be <> nil';
 begin
   if AContext = nil then
     raise EContainer.Create (SAContextShouldBeNil);
 end;
 
 function TContainerDataHandler.CheckType(AContext: Pointer; AType: Byte): Byte;
+const
+  STryingToAccessObjectPointedByCon = 'Trying to access object pointed by context using wrong access method';
 begin
   CheckContext (AContext);
-  if (PContainerData (AContext).VType <> AType) and
-     ((PContainerData (AContext).VType <> vtSmallAnsiString) or (AType <> vtAnsiString)) and
-     ((PContainerData (AContext).VType <> vtSmallAnsiString) or (AType <> vtString)) then
-    raise EContainer.Create (STryingToAccessObjectPointedByCon);
   Result := PContainerData (AContext).VType;
+  if (Result <> AType) and
+     ((Result <> vtSmallAnsiString) or (AType <> vtAnsiString)) and
+     ((Result <> vtSmallAnsiString) or (AType <> vtString)) then
+    raise EContainer.Create (STryingToAccessObjectPointedByCon);
 end;
 
 procedure TContainerDataHandler.CleanData(AContext: Pointer);
