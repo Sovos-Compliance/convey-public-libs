@@ -179,6 +179,39 @@ type
     property Value: TDateTime read FValue write FValue;
   end;
 
+  (* Associative array with Int64 key implementation *)
+
+  {$IFDEF HAS_GENERICS}
+  TCnvInt64DictionaryEnumerateCallback = procedure(const AKey: Int64; const AValue: TObject; AUserData: Pointer) of object;
+  TCnvInt64Dictionary = class
+  private
+    FDic: TDictionary<Int64, TObject>;
+    FUserEnumerateCallback: TCnvInt64DictionaryEnumerateCallback;
+  public
+    constructor Create(AAutoFreeObjects: Boolean = false);
+    destructor Destroy; override;
+    procedure AddOrSetValue(const AKey: Int64; const AValue: TObject); overload;
+    procedure AddOrSetValue(const AKey: Int64; const AValue: string); overload;
+    procedure AddOrSetValue(const AKey: Int64; const AValue: Integer); overload;
+    procedure AddOrSetValue(const AKey: Int64; const AValue: Int64); overload;
+    procedure AddOrSetValue(const AKey: Int64; const AValue: Double); overload;
+    procedure AddOrSetValue(const AKey: Int64; const AValue: Boolean); overload;
+    procedure AddOrSetValueDate(const AKey: Int64; const AValue: TDateTime);
+    procedure Remove(const AKey: Int64);
+    function TryGetValue(const AKey: Int64; out AValue: TObject): Boolean; overload;
+    function TryGetValue(const AKey: Int64; out AValue: string): Boolean; overload;
+    function TryGetValue(const AKey: Int64; out AValue: Integer): Boolean; overload;
+    function TryGetValue(const AKey: Int64; out AValue: Int64): Boolean; overload;
+    function TryGetValue(const AKey: Int64; out AValue: Double): Boolean; overload;
+    function TryGetValue(const AKey: Int64; out AValue: Boolean): Boolean; overload;
+    function TryGetValueDate(const AKey: Int64; out AValue: TDateTime): Boolean;
+    function ContainsKey(const AKey: Int64): Boolean;
+    procedure Clear;
+    procedure Foreach(ACallback: TCnvInt64DictionaryEnumerateCallback; AUserData:
+        Pointer = nil);
+  end;
+  {$ENDIF}
+
 implementation
 
 uses
@@ -751,6 +784,161 @@ begin
     on EAbort do { ignore }
   end;
 end;
+
+{ TCnvInt64Dictionary }
+
+{$IFDEF HAS_GENERICS}
+
+constructor TCnvInt64Dictionary.Create(AAutoFreeObjects: Boolean);
+var
+  ownerships: TDictionaryOwnerships;
+begin
+  if AAutoFreeObjects then
+    ownerships := [doOwnsValues]
+  else
+    ownerships := [];
+  FDic := TObjectDictionary<Int64, TObject>.Create(ownerships);
+end;
+
+procedure TCnvInt64Dictionary.AddOrSetValue(const AKey: Int64;
+  const AValue: TObject);
+begin
+  FDic.AddOrSetValue(AKey, AValue);
+end;
+
+procedure TCnvInt64Dictionary.AddOrSetValue(const AKey : Int64; const AValue: Integer);
+begin
+  AddOrSetValue(AKey, TIntegerWrapper.Create(AValue));
+end;
+
+procedure TCnvInt64Dictionary.AddOrSetValue(const AKey: Int64;
+  const AValue: string);
+begin
+  AddOrSetValue(AKey, TStringWrapper.Create(AValue));
+end;
+
+procedure TCnvInt64Dictionary.AddOrSetValue(const AKey: Int64;
+  const AValue: Boolean);
+begin
+  AddOrSetValue(AKey, TBooleanWrapper.Create(AValue));
+end;
+
+procedure TCnvInt64Dictionary.AddOrSetValueDate(const AKey: Int64;
+  const AValue: TDateTime);
+begin
+  AddOrSetValue(AKey, TDateTimeWrapper.Create(AValue));
+end;
+
+procedure TCnvInt64Dictionary.AddOrSetValue(const AKey: Int64;
+  const AValue: Int64);
+begin
+  AddOrSetValue(AKey, TInt64Wrapper.Create(AValue));
+end;
+
+procedure TCnvInt64Dictionary.AddOrSetValue(const AKey: Int64;
+  const AValue: Double);
+begin
+  AddOrSetValue(AKey, TDoubleWrapper.Create(AValue));
+end;
+
+procedure TCnvInt64Dictionary.Clear;
+begin
+  FDic.Clear;
+end;
+
+function TCnvInt64Dictionary.ContainsKey(const AKey: Int64): Boolean;
+begin
+  Result := FDic.ContainsKey(AKey);
+end;
+
+destructor TCnvInt64Dictionary.Destroy;
+begin
+  FDic.Free;
+  inherited;
+end;
+
+procedure TCnvInt64Dictionary.Foreach(ACallback:
+    TCnvInt64DictionaryEnumerateCallback; AUserData: Pointer = nil);
+var
+  key: Int64;
+begin
+  FUserEnumerateCallback := ACallback;
+  for key in FDic.Keys do
+    FUserEnumerateCallback(key, FDic.Items[key], AUserData);
+end;
+
+procedure TCnvInt64Dictionary.Remove(const AKey: Int64);
+begin
+  FDic.Remove(AKey);
+end;
+
+function TCnvInt64Dictionary.TryGetValue(const AKey: Int64;
+  out AValue: TObject): Boolean;
+begin
+  Result := FDic.TryGetValue(AKey, AValue);
+end;
+
+function TCnvInt64Dictionary.TryGetValue(const AKey: Int64;
+  out AValue: Integer): Boolean;
+var
+  wrap: TIntegerWrapper;
+begin
+  Result := TryGetValue(AKey, TObject(wrap)) and (wrap <> nil);
+  if Result then
+    AValue := wrap.Value;
+end;
+
+function TCnvInt64Dictionary.TryGetValue(const AKey: Int64;
+  out AValue: string): Boolean;
+var
+  wrap: TStringWrapper;
+begin
+  Result := TryGetValue(AKey, TObject(wrap)) and (wrap <> nil);
+  if Result then
+    AValue := wrap.Value;
+end;
+
+function TCnvInt64Dictionary.TryGetValue(const AKey: Int64;
+  out AValue: Int64): Boolean;
+var
+  wrap: TInt64Wrapper;
+begin
+  Result := TryGetValue(AKey, TObject(wrap)) and (wrap <> nil);
+  if Result then
+    AValue := wrap.Value;
+end;
+
+function TCnvInt64Dictionary.TryGetValue(const AKey: Int64;
+  out AValue: Double): Boolean;
+var
+  wrap: TDoubleWrapper;
+begin
+  Result := TryGetValue(AKey, TObject(wrap)) and (wrap <> nil);
+  if Result then
+    AValue := wrap.Value;
+end;
+
+function TCnvInt64Dictionary.TryGetValue(const AKey: Int64;
+  out AValue: Boolean): Boolean;
+var
+  wrap: TBooleanWrapper;
+begin
+  Result := TryGetValue(AKey, TObject(wrap)) and (wrap <> nil);
+  if Result then
+    AValue := wrap.Value;
+end;
+
+function TCnvInt64Dictionary.TryGetValueDate(const AKey: Int64;
+  out AValue: TDateTime): Boolean;
+var
+  wrap: TDateTimeWrapper;
+begin
+  Result := TryGetValue(AKey, TObject(wrap)) and (wrap <> nil);
+  if Result then
+    AValue := wrap.Value;
+end;
+
+{$ENDIF}
 
 end.
 
