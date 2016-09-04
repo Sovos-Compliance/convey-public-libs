@@ -19,6 +19,7 @@ type
   public
     destructor Destroy; override;
     procedure Clear;
+    procedure Pack;
     property AutoFreeObjects: Boolean read GetAutoFreeObjects write SetAutoFreeObjects;
     property RootInitialized: Boolean read GetRootInitialized;
   end;
@@ -90,6 +91,11 @@ end;
 function THashTrie.GetRootInitialized: Boolean;
 begin
   Result := FHashTrie.Count > 0;
+end;
+
+procedure THashTrie.Pack;
+begin
+  FHashTrie.Pack;
 end;
 
 procedure THashTrie.SetAutoFreeObjects(const Value: Boolean);

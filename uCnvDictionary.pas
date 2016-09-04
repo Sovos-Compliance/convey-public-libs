@@ -51,6 +51,7 @@ type
     function TryGetValueDate(const AKey: string; out AValue: TDateTime): Boolean;
     function ContainsKey(const AKey: string): Boolean;
     procedure Clear;
+    procedure Pack;
     procedure Foreach(ACallback: TCnvStringDictionaryEnumerateCallback; AUserData: Pointer = nil);
   end;
 
@@ -104,6 +105,7 @@ type
     function ContainsKey(const AKey: Integer): Boolean;
     procedure Clear;
     procedure Foreach(ACallback: TCnvIntegerDictionaryEnumerateCallback; AUserData: Pointer = nil);
+    procedure Pack;
   end;
 
   TIntHashTraverseProc = procedure(UserData: Pointer; Value: integer;
@@ -339,6 +341,13 @@ begin
 {$ENDIF}
 end;
 
+procedure TCnvStringDictionary.Pack;
+begin
+{$IFNDEF HAS_GENERICS}
+  FDic.Pack;
+{$ENDIF}
+end;
+
 procedure TCnvStringDictionary.Remove(const AKey: string);
 begin
 {$IFDEF HAS_GENERICS}
@@ -528,6 +537,13 @@ begin
     FUserEnumerateCallback(key, FDic.Items[key], AUserData);
 {$ELSE}
   FDic.Traverse(AUserData, EnumerateCallback);
+{$ENDIF}
+end;
+
+procedure TCnvIntegerDictionary.Pack;
+begin
+{$IFNDEF HAS_GENERICS}
+  FDic.Pack;
 {$ENDIF}
 end;
 
