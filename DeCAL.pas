@@ -4176,7 +4176,7 @@ end;
 
 function JenkinsHashDouble(d: Double): Integer;
 begin
-  Result := JenkinsHashBuffer(PChar(@d)^, SizeOf(Double), 0);
+  Result := JenkinsHashBuffer(PAnsiChar(@d)^, SizeOf(Double), 0);
 end;
 
 procedure HashLocation(const obj: DObject; var loc: PChar; var Len: Integer);
@@ -4384,7 +4384,7 @@ begin
   i := 0;
   while i < Count do
   begin
-    InitDObject(PDObject(PChar(@obj) + SizeOf(DObject) * i)^);
+    InitDObject(PDObject(PAnsiChar(@obj) + SizeOf(DObject) * i)^);
     Inc(i);
   end;
 end;
@@ -4396,7 +4396,7 @@ begin
   i := 0;
   while i < Count do
   begin
-    ClearDObject(PDObject(PChar(@obj) + SizeOf(DObject) * i)^);
+    ClearDObject(PDObject(PAnsiChar(@obj) + SizeOf(DObject) * i)^);
     Inc(i);
   end;
 end;
