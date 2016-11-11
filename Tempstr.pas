@@ -120,14 +120,15 @@ var
   TempPath, Prefix : string;
   F : Text;
 begin
-  if ATempPath[Length(ATempPath)] = '\' then
+  if (ATempPath = '' or (ATempPath[Length(ATempPath)] = '\') then
     TempPath := ATempPath
   else TempPath := ATempPath + '\';
   if APrefix = '' then
     Prefix := 'TmpFile'
   else Prefix := APrefix;
 
-  for i := 0 to 10000000 do
+  i := 0;
+  while True do
     begin
       Result := Format('%s%s_%.8d.tmp', [TempPath, APrefix, i]);
       if not FileExists(Result) then
