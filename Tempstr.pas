@@ -1,4 +1,25 @@
-{ This class implements a temporary file stream }
+{
+#####################################################################
+##SOVOSSOVOSSOVOSSOVOSSOVOSSOVOSSOVOSSOVOSSOVOSSOVOSSOVOSSOVOSSOVOS##
+ #O                                                               O#
+ #V Author: Sovos Compliance, LLC                                 V#
+ #O Address: 200 Ballardvale St., Building 1, 4th Floor           O#
+ #S Wilmington, MA 01887, USA                                     S#
+ #S www.sovos.com <http://www.sovos.com/>                         S#
+ #O Contact: Tel 978-527-0000 Fax                                 O#
+ #V                                                               V#
+ #O THIS PROGRAM IS A PROPRIETARY PRODUCT AND MAY NOT BE USED     O#
+ #S WITHOUT WRITTEN PERMISSION FROM Sovos Compliance              S#
+ #S                                                               S#
+ #O (c)2016 Sovos Compliance, LLC, All rights reserved.           O#
+ #V THE INFORMATION CONTAINED HEREIN IS CONFIDENTIAL              V#
+ #O ALL RIGHTS RESERVED                                           O#
+##SOVOSSOVOSSOVOSSOVOSSOVOSSOVOSSOVOSSOVOSSOVOSSOVOSSOVOSSOVOSSOVOS##
+#####################################################################
+#####################################################################
+# Source File :- convey-public-libs\Tempstr.pas
+#####################################################################
+}
 
 unit TempStr;
 
@@ -18,6 +39,7 @@ type
     constructor Create (const Directory : string);
     constructor CreatePrefix(const APrefix: string; Dummy: Integer = 0); // Dummy added to avoid C++ warning
     destructor Destroy; override;
+    class function GenerateTempFileName(const ATempPath: string; const APrefix: String = ''): string;
     property FileName : string read FFileName;
     property Prefix: string read FPrefix;
   end;
@@ -37,29 +59,21 @@ uses
 
 function TTempFileStream.CreateTempFile(const APrefix : string): string;
 var
-  TempPath, TempName : PChar;
-  n, i : integer;
+  TempPath : PChar;
+  i : integer;
 begin
   FPrefix := APrefix;
   TempPath := StrAlloc (Max_Path);
   try
     GetTempPath (Max_Path, TempPath);
-    TempName := StrAlloc (Max_Path);
-    try
-      i := 0;
-      repeat
-        n := GetTempFileName (TempPath, PChar (APrefix), 0, TempName);
-        if n = 0
-          then raise Exception.Create ('Error getting temp file name');
-        Result := StrPas (TempName);
-        sleep (i * 100);
-        inc (i);
-        if i > 10
-          then raise Exception.Create ('Error getting temp file name. It couldn''t create the file on the temp folder');
-      until FileExists (Result);
-    finally
-      StrDispose (TempName);
-    end;
+    i := 0;
+    repeat
+      Result := GenerateTempFileName (TempPath, APrefix);
+      sleep (i * 100);
+      inc (i);
+      if i > 10
+        then raise Exception.Create ('Error getting temp file name. It couldn''t create the file on the temp folder');
+    until FileExists (Result);
   finally
     StrDispose (TempPath);
   end;
@@ -98,6 +112,33 @@ destructor TTempFileStream.Destroy;
 begin
   TmpFileList.Remove (self);
   inherited;
+end;
+
+class function TTempFileStream.GenerateTempFileName(const ATempPath: string; const APrefix: String = ''): string;
+var
+  i : integer;
+  TempPath, Prefix : string;
+  F : Text;
+begin
+  if ATempPath[Length(ATempPath)] = '\' then
+    TempPath := ATempPath
+  else TempPath := ATempPath + '\';
+  if APrefix = '' then
+    Prefix := 'TmpFile'
+  else Prefix := APrefix;
+
+  for i := 0 to 10000000 do
+    begin
+      Result := Format('%s%s_%.8d.tmp', [TempPath, APrefix, i]);
+      if not FileExists(Result) then
+        break;
+    end;
+  Assign(f, Result);
+  try
+    ReWrite(f);
+  finally
+    CloseFile(f);
+  end;
 end;
 
 destructor TVolatileTempFileStream.Destroy;
