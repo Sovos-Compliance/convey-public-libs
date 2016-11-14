@@ -39,7 +39,6 @@ type
     constructor Create (const Directory : string);
     constructor CreatePrefix(const APrefix: string; Dummy: Integer = 0); // Dummy added to avoid C++ warning
     destructor Destroy; override;
-    class function GenerateTempFileName(const ATempPath: string; const APrefix: String = ''): string;
     property FileName : string read FFileName;
     property Prefix: string read FPrefix;
   end;
@@ -60,20 +59,30 @@ uses
 function TTempFileStream.CreateTempFile(const APrefix : string): string;
 var
   TempPath : PChar;
+  TempFileName, Prefix : string;
+  h : THandle;
   i : integer;
 begin
-  FPrefix := APrefix;
+  if APrefix = '' then
+    Prefix := 'TmpFile'
+  else Prefix := APrefix;
+  FPrefix := Prefix;
   TempPath := StrAlloc (Max_Path);
   try
     GetTempPath (Max_Path, TempPath);
     i := 0;
-    repeat
-      Result := GenerateTempFileName (TempPath, APrefix);
-      sleep (i * 100);
-      inc (i);
-      if i > 10
-        then raise Exception.Create ('Error getting temp file name. It couldn''t create the file on the temp folder');
-    until FileExists (Result);
+    while True do
+      begin
+        TempFileName := Format('%s%s_%.8d.tmp', [TempPath, APrefix, i]);
+        h := CreateFile(PAnsiChar(TempFileName), GENERIC_WRITE, 0, nil, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, 0);
+        if h <> INVALID_HANDLE_VALUE then
+          begin
+            CloseHandle(h);
+            Result := TempFileName;
+            break;
+          end;
+        inc(i);
+      end;
   finally
     StrDispose (TempPath);
   end;
@@ -112,33 +121,6 @@ destructor TTempFileStream.Destroy;
 begin
   TmpFileList.Remove (self);
   inherited;
-end;
-
-class function TTempFileStream.GenerateTempFileName(const ATempPath: string; const APrefix: String = ''): string;
-var
-  i : integer;
-  TempPath, Prefix : string;
-  F : Text;
-begin
-  if ATempPath[Length(ATempPath)] = '\' then
-    TempPath := ATempPath
-  else TempPath := ATempPath + '\';
-  if APrefix = '' then
-    Prefix := 'TmpFile'
-  else Prefix := APrefix;
-
-  for i := 0 to 10000000 do
-    begin
-      Result := Format('%s%s_%.8d.tmp', [TempPath, APrefix, i]);
-      if not FileExists(Result) then
-        break;
-    end;
-  Assign(f, Result);
-  try
-    ReWrite(f);
-  finally
-    CloseFile(f);
-  end;
 end;
 
 destructor TVolatileTempFileStream.Destroy;
