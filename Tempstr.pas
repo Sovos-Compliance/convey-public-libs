@@ -117,28 +117,33 @@ end;
 class function TTempFileStream.GenerateTempFileName(const ATempPath: string; const APrefix: String = ''): string;
 var
   i : integer;
+  TempFileName : PAnsiChar;
   TempPath, Prefix : string;
-  F : Text;
+  h : THandle;
 begin
-  if (ATempPath = '' or (ATempPath[Length(ATempPath)] = '\') then
+  if (ATempPath = '') or (ATempPath[Length(ATempPath)] = '\') then
     TempPath := ATempPath
   else TempPath := ATempPath + '\';
   if APrefix = '' then
     Prefix := 'TmpFile'
   else Prefix := APrefix;
 
-  i := 0;
-  while True do
-    begin
-      Result := Format('%s%s_%.8d.tmp', [TempPath, APrefix, i]);
-      if not FileExists(Result) then
-        break;
-    end;
-  Assign(f, Result);
+  TempFileName := StrAlloc (Max_Path);
   try
-    ReWrite(f);
+    i := 0;
+    while True do
+      begin
+        TempFileName := PAnsiChar(Format('%s%s_%.8d.tmp', [TempPath, APrefix, i]));
+        h := CreateFile(TempFileName, GENERIC_WRITE, 0, nil, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, 0);
+        if h <> INVALID_HANDLE_VALUE then
+          begin
+            CloseHandle(h);
+            break;
+          end;
+        inc(i);
+      end;
   finally
-    CloseFile(f);
+    StrDispose(TempFileName);
   end;
 end;
 
