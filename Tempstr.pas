@@ -138,6 +138,7 @@ begin
         if h <> INVALID_HANDLE_VALUE then
           begin
             CloseHandle(h);
+            Result := TempFileName;
             break;
           end;
         inc(i);
